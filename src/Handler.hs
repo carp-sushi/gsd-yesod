@@ -25,10 +25,12 @@ getStoryR storyId = do
     story <- runDB $ get404 storyId
     returnJson $ storyDto storyId story
 
--- | Delete a story by entity key.
+-- | Delete a story and its tasks.
 deleteStoryR :: StoryId -> Handler ()
 deleteStoryR storyId = do
-    runDB $ delete storyId
+    runDB $ do
+        deleteWhere [TaskStoryId ==. storyId]
+        delete storyId
 
 -- | Create a new story.
 postStoriesR :: Handler Value
