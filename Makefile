@@ -1,4 +1,4 @@
-.PHONY: all format build lint run clean
+.PHONY: all format build lint run clean watch
 
 all: format build
 
@@ -16,3 +16,7 @@ run:
 
 clean:
 	@stack purge
+	@rm -rf dist-newstyle
+
+watch:
+	ghciwatch --clear --before-reload-shell "make format"
