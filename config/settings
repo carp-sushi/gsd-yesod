@@ -1,0 +1,4 @@
+httpPort = 3000
+databaseUrl = "host=localhost dbname=gsd_yesod user=postgres password=password1 port=5432"
+poolSize = 4
+runMigrations = true

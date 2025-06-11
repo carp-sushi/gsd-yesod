@@ -1,0 +1,4 @@
+/stories                           StoriesR    GET POST
+/stories/#StoryId                  StoryR      GET DELETE PUT
+/stories/#StoryId/tasks            TasksR      GET POST
+/stories/#StoryId/tasks/#TaskId    TaskR       GET DELETE PUT
