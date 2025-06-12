@@ -19,20 +19,20 @@ getStoriesR = do
     stories <- runDB $ selectList [] [LimitTo limit, OffsetBy offset, Desc StoryId]
     returnJson stories
 
--- | Get a story by entity key.
+-- | Get a story.
 getStoryR :: StoryId -> Handler Value
-getStoryR storyId = do
-    story <- runDB $ get404 storyId
-    returnJson $ storyDto storyId story
+getStoryR storyId =
+    runDB (get404 storyId) >>= returnJson . storyDto storyId
 
 -- | Delete a story and its tasks.
 deleteStoryR :: StoryId -> Handler ()
 deleteStoryR storyId = do
     runDB $ do
+        _ <- get404 storyId
         deleteWhere [TaskStoryId ==. storyId]
         delete storyId
 
--- | Create a new story.
+-- | Create a story.
 postStoriesR :: Handler Value
 postStoriesR = do
     story <- (requireCheckJsonBody :: Handler Story)
@@ -51,7 +51,7 @@ storyDto :: StoryId -> Story -> Value
 storyDto storyId (Story name) =
     object ["id" .= toJSON storyId, "name" .= toJSON name]
 
--- | Get tasks for a story.
+-- | List a page of tasks for a story.
 getTasksR :: StoryId -> Handler Value
 getTasksR storyId = do
     maybeLimit <- lookupGetParam "limit"
@@ -60,21 +60,21 @@ getTasksR storyId = do
     tasks <- runDB $ selectList [TaskStoryId ==. storyId] [LimitTo limit, OffsetBy offset]
     returnJson tasks
 
--- | Get a story by entity key.
+-- | Get a task.
 getTaskR :: StoryId -> TaskId -> Handler Value
 getTaskR storyId taskId = do
     task <- runDB $ get404 taskId
     when (storyId /= taskStoryId task) $ invalidArgs ["Task story mismatch"]
     returnJson $ taskDto taskId task
 
--- | Delete a story by entity key.
+-- | Delete a task.
 deleteTaskR :: StoryId -> TaskId -> Handler ()
 deleteTaskR storyId taskId = do
     task <- runDB $ get404 taskId
     when (storyId /= taskStoryId task) $ invalidArgs ["Task story mismatch"]
     runDB $ delete taskId
 
--- | Create a new task.
+-- | Create a task.
 postTasksR :: StoryId -> Handler Value
 postTasksR storyId = do
     task <- (requireCheckJsonBody :: Handler Task)
@@ -90,7 +90,7 @@ putTaskR storyId taskId = do
     runDB $ update taskId [TaskName =. taskName task, TaskStatus =. taskStatus task]
     returnJson $ taskDto taskId task
 
--- | Create a JSON data transfer object for a story.
+-- | Create a JSON data transfer object for a task.
 taskDto :: TaskId -> Task -> Value
 taskDto taskId (Task storyId name status) =
     object

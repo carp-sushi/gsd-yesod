@@ -21,6 +21,8 @@ library:
   - -Wall
   - -ddump-splices
   - -ddump-to-file
+  - -fwarn-tabs
+  - -O2
 
 # Runnable executable for our application
 # This is just a thin wrapper over the library.

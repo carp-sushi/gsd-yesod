@@ -19,7 +19,9 @@ data App = App
 
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
-instance Yesod App
+instance Yesod App where
+    makeSessionBackend :: App -> IO (Maybe SessionBackend)
+    makeSessionBackend _ = return Nothing
 
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
