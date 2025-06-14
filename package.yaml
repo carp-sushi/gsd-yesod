@@ -13,6 +13,7 @@ dependencies:
 - persistent-postgresql
 - string-conversions
 - text
+- time
 
 # The library contains all of our application code.
 library:

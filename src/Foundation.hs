@@ -7,7 +7,7 @@
 module Foundation where
 
 import Database.Persist.Sql
-import Model (StoryId, TaskId)
+import Model (MilestoneId, StoryId, TaskId)
 import Settings
 import Yesod.Core
 import Yesod.Persist.Core

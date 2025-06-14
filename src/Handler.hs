@@ -22,7 +22,8 @@ getStoriesR = do
 -- | Get a story.
 getStoryR :: StoryId -> Handler Value
 getStoryR storyId =
-    runDB (get404 storyId) >>= returnJson . storyDto storyId
+    runDB (get404 storyId)
+        >>= returnJson . storyDto storyId
 
 -- | Delete a story and its tasks.
 deleteStoryR :: StoryId -> Handler ()
@@ -98,4 +99,29 @@ taskDto taskId (Task storyId name status) =
         , "name" .= toJSON name
         , "status" .= toJSON status
         , "storyId" .= toJSON storyId
+        ]
+
+-- | List a page of milestones.
+getMilestonesR :: Handler Value
+getMilestonesR = do
+    maybeLimit <- lookupGetParam "limit"
+    maybeOffset <- lookupGetParam "offset"
+    let (limit, offset) = getPageParams maybeLimit maybeOffset
+    milestones <- runDB $ selectList [] [LimitTo limit, OffsetBy offset, Desc MilestoneStartDate]
+    returnJson milestones
+
+-- | Get a milestone.
+getMilestoneR :: MilestoneId -> Handler Value
+getMilestoneR milestoneId =
+    runDB (get404 milestoneId)
+        >>= returnJson . milestoneDto milestoneId
+
+-- | Create a JSON data transfer object for a milestone.
+milestoneDto :: MilestoneId -> Milestone -> Value
+milestoneDto storyId (Milestone name startDate completionDate) =
+    object
+        [ "id" .= toJSON storyId
+        , "name" .= toJSON name
+        , "startDate" .= toJSON startDate
+        , "completionDate" .= toJSON completionDate
         ]
