@@ -117,6 +117,36 @@ getMilestoneR milestoneId =
     runDB (get404 milestoneId)
         >>= returnJson . milestoneDto milestoneId
 
+-- | Create a milestone.
+postMilestonesR :: Handler Value
+postMilestonesR = do
+    milestone <- (requireCheckJsonBody :: Handler Milestone)
+    inserted <- runDB $ insertEntity milestone
+    returnJson inserted
+
+-- | Delete a milestone and unlink any stories.
+deleteMilestoneR :: MilestoneId -> Handler ()
+deleteMilestoneR milestoneId = do
+    runDB $ do
+        _ <- get404 milestoneId
+        deleteWhere [MilestoneStoryMilestoneId ==. milestoneId]
+        delete milestoneId
+
+-- | Update a milestone.
+putMilestoneR :: MilestoneId -> Handler Value
+putMilestoneR milestoneId = do
+    milestone <- (requireCheckJsonBody :: Handler Milestone)
+    runDB $ do
+        _ <- get404 milestoneId
+        update
+            milestoneId
+            [ MilestoneName =. milestoneName milestone
+            , MilestoneStartDate =. milestoneStartDate milestone
+            , MilestoneCompletionDate =. milestoneCompletionDate milestone
+            ]
+    returnJson $
+        milestoneDto milestoneId milestone
+
 -- | Create a JSON data transfer object for a milestone.
 milestoneDto :: MilestoneId -> Milestone -> Value
 milestoneDto storyId (Milestone name startDate completionDate) =

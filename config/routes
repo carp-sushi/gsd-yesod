@@ -1,5 +1,5 @@
-/milestones                         MilestonesR          GET
-/milestones/#MilestoneId            MilestoneR           GET
+/milestones                         MilestonesR          GET POST
+/milestones/#MilestoneId            MilestoneR           GET DELETE PUT
 /milestones/#MilestoneId/stories    MilestoneStoriesR    GET
 
 /stories                            StoriesR             GET POST
