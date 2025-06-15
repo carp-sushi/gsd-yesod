@@ -1,5 +1,4 @@
 {-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
 module JoinHandler where
@@ -19,7 +18,7 @@ getMilestoneStoriesR milestoneId = do
                 from $
                     table @Story
                         `InnerJoin` table @MilestoneStory
-                            `on` do \(s :& ms) -> (s ^. StoryId ==. ms ^. MilestoneStoryStoryId)
+                            `on` do \(s :& ms) -> s ^. StoryId ==. ms ^. MilestoneStoryStoryId
             where_ $ ms ^. MilestoneStoryMilestoneId ==. val milestoneId
             pure (s, ms)
     returnJson $ fmap fst result
