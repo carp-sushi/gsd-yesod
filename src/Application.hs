@@ -10,6 +10,7 @@ import Control.Monad (when)
 import qualified Database as DB
 import Foundation
 import Handler
+import JoinHandler
 import Settings (Settings (..), loadSettings)
 import Yesod.Core
 
