@@ -31,6 +31,7 @@ deleteStoryR storyId = do
     runDB $ do
         _ <- get404 storyId
         deleteWhere [TaskStoryId ==. storyId]
+        deleteWhere [MilestoneStoryStoryId ==. storyId]
         delete storyId
 
 -- | Create a story.
