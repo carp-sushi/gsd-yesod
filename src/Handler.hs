@@ -142,7 +142,7 @@ putMilestoneR milestoneId = do
             milestoneId
             [ MilestoneName =. milestoneName milestone
             , MilestoneStartDate =. milestoneStartDate milestone
-            , MilestoneCompletionDate =. milestoneCompletionDate milestone
+            , MilestoneCompleteDate =. milestoneCompleteDate milestone
             ]
     returnJson $
         milestoneDto milestoneId milestone

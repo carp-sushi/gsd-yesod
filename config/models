@@ -12,7 +12,7 @@ Task json sql=tasks
 Milestone json sql=milestones
     name String
     startDate UTCTime Maybe
-    completionDate UTCTime Maybe
+    completeDate UTCTime Maybe
     deriving Eq Read Show
 MilestoneStory sql=milestone_stories
     milestoneId MilestoneId
