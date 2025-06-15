@@ -22,3 +22,17 @@ getMilestoneStoriesR milestoneId = do
             where_ $ ms ^. MilestoneStoryMilestoneId ==. val milestoneId
             pure s
     returnJson stories
+
+-- | List all milestones a story is linked to.
+getStoryMilestonesR :: StoryId -> Handler Value
+getStoryMilestonesR storyId = do
+    milestones <- runDB $
+        select $ do
+            (m :& ms) <-
+                from $
+                    table @Milestone
+                        `InnerJoin` table @MilestoneStory
+                            `on` do \(m :& ms) -> m ^. MilestoneId ==. ms ^. MilestoneStoryMilestoneId
+            where_ $ ms ^. MilestoneStoryStoryId ==. val storyId
+            pure m
+    returnJson milestones
