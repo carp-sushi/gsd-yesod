@@ -3,7 +3,7 @@
 all: format build
 
 format:
-	@fourmolu -q -i src/*.hs app/*.hs
+	@fourmolu -q -i src/{Application,Database,Foundation,Handler,Model,Page,Settings}.hs app/Main.hs
 
 build:
 	@stack build

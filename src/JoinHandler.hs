@@ -14,12 +14,13 @@ getMilestoneStoriesR :: MilestoneId -> Handler Value
 getMilestoneStoriesR milestoneId = do
     stories <- runDB $
         select $ do
-            (s :& ms) <-
-                from $
-                    table @Story
-                        `InnerJoin` table @MilestoneStory
-                            `on` do \(s :& ms) -> s ^. StoryId ==. ms ^. MilestoneStoryStoryId
-            where_ $ ms ^. MilestoneStoryMilestoneId ==. val milestoneId
+            (s :& ms) <- from $
+                table @Story
+                `InnerJoin`
+                table @MilestoneStory
+                    `on` do \(s :& ms) -> s ^. StoryId ==. ms ^. MilestoneStoryStoryId
+            where_ $
+                ms ^. MilestoneStoryMilestoneId ==. val milestoneId
             pure s
     returnJson stories
 
@@ -28,11 +29,12 @@ getStoryMilestonesR :: StoryId -> Handler Value
 getStoryMilestonesR storyId = do
     milestones <- runDB $
         select $ do
-            (m :& ms) <-
-                from $
-                    table @Milestone
-                        `InnerJoin` table @MilestoneStory
-                            `on` do \(m :& ms) -> m ^. MilestoneId ==. ms ^. MilestoneStoryMilestoneId
-            where_ $ ms ^. MilestoneStoryStoryId ==. val storyId
+            (m :& ms) <- from $
+                table @Milestone
+                `InnerJoin`
+                table @MilestoneStory
+                    `on` do \(m :& ms) -> m ^. MilestoneId ==. ms ^. MilestoneStoryMilestoneId
+            where_ $
+                ms ^. MilestoneStoryStoryId ==. val storyId
             pure m
     returnJson milestones
