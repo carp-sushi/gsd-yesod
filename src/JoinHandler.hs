@@ -12,7 +12,7 @@ import Yesod.Persist.Core (runDB)
 -- | List all stories for a milestone.
 getMilestoneStoriesR :: MilestoneId -> Handler Value
 getMilestoneStoriesR milestoneId = do
-    result <- runDB $
+    stories <- runDB $
         select $ do
             (s :& ms) <-
                 from $
@@ -20,5 +20,5 @@ getMilestoneStoriesR milestoneId = do
                         `InnerJoin` table @MilestoneStory
                             `on` do \(s :& ms) -> s ^. StoryId ==. ms ^. MilestoneStoryStoryId
             where_ $ ms ^. MilestoneStoryMilestoneId ==. val milestoneId
-            pure (s, ms)
-    returnJson $ fmap fst result
+            pure s
+    returnJson stories
