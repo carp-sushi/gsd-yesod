@@ -22,7 +22,8 @@ getStoriesR = do
 -- | Get a story.
 getStoryR :: StoryId -> Handler Value
 getStoryR storyId =
-    runDB (get404 storyId) >>= returnJson . storyDto storyId
+    runDB (get404 storyId)
+        >>= returnJson . storyDto storyId
 
 -- | Delete a story and its tasks.
 deleteStoryR :: StoryId -> Handler ()
@@ -30,6 +31,7 @@ deleteStoryR storyId = do
     runDB $ do
         _ <- get404 storyId
         deleteWhere [TaskStoryId ==. storyId]
+        deleteWhere [MilestoneStoryStoryId ==. storyId]
         delete storyId
 
 -- | Create a story.
@@ -99,3 +101,66 @@ taskDto taskId (Task storyId name status) =
         , "status" .= toJSON status
         , "storyId" .= toJSON storyId
         ]
+
+-- | List a page of milestones.
+getMilestonesR :: Handler Value
+getMilestonesR = do
+    maybeLimit <- lookupGetParam "limit"
+    maybeOffset <- lookupGetParam "offset"
+    let (limit, offset) = getPageParams maybeLimit maybeOffset
+    milestones <- runDB $ selectList [] [LimitTo limit, OffsetBy offset, Desc MilestoneStartDate]
+    returnJson milestones
+
+-- | Get a milestone.
+getMilestoneR :: MilestoneId -> Handler Value
+getMilestoneR milestoneId =
+    runDB (get404 milestoneId)
+        >>= returnJson . milestoneDto milestoneId
+
+-- | Create a milestone.
+postMilestonesR :: Handler Value
+postMilestonesR = do
+    milestone <- (requireCheckJsonBody :: Handler Milestone)
+    inserted <- runDB $ insertEntity milestone
+    returnJson inserted
+
+-- | Delete a milestone and unlink any stories.
+deleteMilestoneR :: MilestoneId -> Handler ()
+deleteMilestoneR milestoneId = do
+    runDB $ do
+        _ <- get404 milestoneId
+        deleteWhere [MilestoneStoryMilestoneId ==. milestoneId]
+        delete milestoneId
+
+-- | Update a milestone.
+putMilestoneR :: MilestoneId -> Handler Value
+putMilestoneR milestoneId = do
+    milestone <- (requireCheckJsonBody :: Handler Milestone)
+    runDB $ do
+        _ <- get404 milestoneId
+        update
+            milestoneId
+            [ MilestoneName =. milestoneName milestone
+            , MilestoneStartDate =. milestoneStartDate milestone
+            , MilestoneCompleteDate =. milestoneCompleteDate milestone
+            ]
+    returnJson $
+        milestoneDto milestoneId milestone
+
+-- | Create a JSON data transfer object for a milestone.
+milestoneDto :: MilestoneId -> Milestone -> Value
+milestoneDto storyId (Milestone name startDate completionDate) =
+    object
+        [ "id" .= toJSON storyId
+        , "name" .= toJSON name
+        , "startDate" .= toJSON startDate
+        , "completionDate" .= toJSON completionDate
+        ]
+
+-- | Link a story to a milestone.
+postMilestoneStoriesR :: MilestoneId -> Handler Value
+postMilestoneStoriesR milestoneId = do
+    req <- (requireCheckJsonBody :: Handler MilestoneStory)
+    when (milestoneId /= milestoneStoryMilestoneId req) $ invalidArgs ["Milestone mismatch"]
+    inserted <- runDB $ insertEntity req
+    returnJson inserted

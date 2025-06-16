@@ -18,6 +18,7 @@
 module Model where
 
 import Data.Aeson
+import Data.Time (UTCTime)
 import Database.Persist.Quasi
 import Database.Persist.Sql
 import Database.Persist.TH

@@ -13,6 +13,7 @@ dependencies:
 - persistent-postgresql
 - string-conversions
 - text
+- time
 
 # The library contains all of our application code.
 library:
@@ -20,7 +21,6 @@ library:
   ghc-options:
   - -Wall
   - -ddump-splices
-  - -ddump-to-file
   - -fwarn-tabs
   - -O2
 
