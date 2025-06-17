@@ -32,7 +32,7 @@ findStoryMilestones storyId =
             table @Milestone
             `innerJoin`
             table @MilestoneStory
-            `on` do \(m :& ms) -> m ^. MilestoneId ==. ms ^. MilestoneStoryMilestoneId
+            `on` \(m :& ms) -> m ^. MilestoneId ==. ms ^. MilestoneStoryMilestoneId
         where_ $
             ms ^. MilestoneStoryStoryId ==. val storyId
         return m
@@ -48,7 +48,7 @@ findMilestoneStories milestoneId =
             table @Story
             `innerJoin`
             table @MilestoneStory
-            `on` do \(s :& ms) -> s ^. StoryId ==. ms ^. MilestoneStoryStoryId
+            `on` \(s :& ms) -> s ^. StoryId ==. ms ^. MilestoneStoryStoryId
         where_ $
             ms ^. MilestoneStoryMilestoneId ==. val milestoneId
         return s
