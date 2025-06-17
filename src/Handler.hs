@@ -1,4 +1,7 @@
+{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Handler where
 
@@ -7,6 +10,7 @@ import Database.Persist.Sql
 import Foundation
 import Model
 import Page (getPageParams)
+import qualified Query as Q
 import Yesod.Core
 import Yesod.Persist.Core (get404, runDB)
 
@@ -66,21 +70,24 @@ getTasksR storyId = do
 getTaskR :: StoryId -> TaskId -> Handler Value
 getTaskR storyId taskId = do
     task <- runDB $ get404 taskId
-    when (storyId /= taskStoryId task) $ invalidArgs ["Task story mismatch"]
+    when (storyId /= taskStoryId task) $
+        invalidArgs ["StoryId mismatch: URI does not match request body"]
     returnJson $ taskDto taskId task
 
 -- | Delete a task.
 deleteTaskR :: StoryId -> TaskId -> Handler ()
 deleteTaskR storyId taskId = do
     task <- runDB $ get404 taskId
-    when (storyId /= taskStoryId task) $ invalidArgs ["Task story mismatch"]
+    when (storyId /= taskStoryId task) $
+        invalidArgs ["StoryId mismatch: URI does not match request body"]
     runDB $ delete taskId
 
 -- | Create a task.
 postTasksR :: StoryId -> Handler Value
 postTasksR storyId = do
     task <- (requireCheckJsonBody :: Handler Task)
-    when (storyId /= taskStoryId task) $ invalidArgs ["Task story mismatch"]
+    when (storyId /= taskStoryId task) $
+        invalidArgs ["StoryId mismatch: URI does not match request body"]
     inserted <- runDB $ insertEntity task
     returnJson inserted
 
@@ -88,7 +95,8 @@ postTasksR storyId = do
 putTaskR :: StoryId -> TaskId -> Handler Value
 putTaskR storyId taskId = do
     task <- (requireCheckJsonBody :: Handler Task)
-    when (storyId /= taskStoryId task) $ invalidArgs ["Task story mismatch"]
+    when (storyId /= taskStoryId task) $
+        invalidArgs ["StoryId mismatch: URI does not match request body"]
     runDB $ update taskId [TaskName =. taskName task, TaskStatus =. taskStatus task]
     returnJson $ taskDto taskId task
 
@@ -161,6 +169,35 @@ milestoneDto storyId (Milestone name startDate completionDate) =
 postMilestoneStoriesR :: MilestoneId -> Handler Value
 postMilestoneStoriesR milestoneId = do
     req <- (requireCheckJsonBody :: Handler MilestoneStory)
-    when (milestoneId /= milestoneStoryMilestoneId req) $ invalidArgs ["Milestone mismatch"]
-    inserted <- runDB $ insertEntity req
-    returnJson inserted
+
+    when (milestoneId /= milestoneStoryMilestoneId req) $
+        invalidArgs ["MilestoneId mismatch: URI does not match request body"]
+
+    maybeLink <-
+        runDB $
+            Q.findMilestoneStory
+                (milestoneStoryMilestoneId req)
+                (milestoneStoryStoryId req)
+
+    case maybeLink of
+        Just link -> do
+            $(logWarn) "Milestone story link already exists"
+            returnJson link
+        Nothing -> do
+            inserted <- runDB $ do
+                _ <- get404 milestoneId
+                _ <- get404 $ milestoneStoryStoryId req
+                insertEntity req
+            returnJson inserted
+
+-- | List all stories for a milestone.
+getMilestoneStoriesR :: MilestoneId -> Handler Value
+getMilestoneStoriesR milestoneId =
+    runDB (Q.findMilestoneStories milestoneId)
+        >>= returnJson
+
+-- | List all milestones a story is linked to.
+getStoryMilestonesR :: StoryId -> Handler Value
+getStoryMilestonesR storyId =
+    runDB (Q.findStoryMilestones storyId)
+        >>= returnJson

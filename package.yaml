@@ -5,6 +5,7 @@ dependencies:
 - base
 - aeson
 - configurator
+- yesod
 - yesod-core
 - yesod-persistent
 - esqueleto
@@ -14,6 +15,8 @@ dependencies:
 - string-conversions
 - text
 - time
+- fast-logger
+- warp
 
 # The library contains all of our application code.
 library:

@@ -3,7 +3,7 @@ module Database (
     runMigrations,
 ) where
 
-import Control.Monad.Logger (runNoLoggingT, runStdoutLoggingT)
+import Control.Monad.Logger (runNoLoggingT)
 import Data.String.Conversions (cs)
 import Database.Persist.Postgresql (ConnectionPool, createPostgresqlPool, runMigrationSilent, runSqlPool)
 import Model (migrateAll)
@@ -12,7 +12,7 @@ import Settings (Settings (..))
 -- Create a database connection pool.
 createPool :: Settings -> IO ConnectionPool
 createPool settings =
-    runStdoutLoggingT $
+    runNoLoggingT $
         createPostgresqlPool
             (cs $ settingsDatabaseUrl settings)
             (settingsPoolSize settings)
