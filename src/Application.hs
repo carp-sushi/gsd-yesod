@@ -4,7 +4,7 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Application (appMain) where
+module Application (appMain, makeApp) where
 
 import Control.Monad (when)
 import qualified Database as DB

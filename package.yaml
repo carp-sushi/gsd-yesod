@@ -39,3 +39,16 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - gsd-yesod
+
+# Test suite
+tests:
+  gsd-yesod-tests:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options: -Wall
+    dependencies:
+    - gsd-yesod
+    - hspec >= 2.0.0
+    - mtl
+    - shakespeare
+    - yesod-test

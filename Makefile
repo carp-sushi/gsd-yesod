@@ -1,4 +1,4 @@
-.PHONY: all format build lint run clean watch
+.PHONY: all format build test lint run clean watch
 
 all: format build
 
@@ -8,11 +8,14 @@ format:
 build:
 	@stack build
 
+test:
+	@stack test
+
 lint:
 	@hlint src/*.hs app/*.hs
 
 run:
-	@stack run -- config/settings
+	@stack run -- config/settings_dev
 
 clean:
 	@stack purge

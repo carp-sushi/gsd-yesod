@@ -6,6 +6,7 @@
 module Handler where
 
 import Control.Monad (when)
+import Data.Maybe (isNothing)
 import Database.Persist.Sql
 import Foundation
 import Model
@@ -157,12 +158,12 @@ putMilestoneR milestoneId = do
 
 -- | Create a JSON data transfer object for a milestone.
 milestoneDto :: MilestoneId -> Milestone -> Value
-milestoneDto storyId (Milestone name startDate completionDate) =
+milestoneDto storyId (Milestone name startDate completeDate) =
     object
         [ "id" .= toJSON storyId
         , "name" .= toJSON name
         , "startDate" .= toJSON startDate
-        , "completionDate" .= toJSON completionDate
+        , "completeDate" .= toJSON completeDate
         ]
 
 -- | Link a story to a milestone.
@@ -201,3 +202,14 @@ getStoryMilestonesR :: StoryId -> Handler Value
 getStoryMilestonesR storyId =
     runDB (Q.findStoryMilestones storyId)
         >>= returnJson
+
+-- | Delete a link between a milestone and a story.
+deleteMilestoneStoryR :: MilestoneId -> StoryId -> Handler ()
+deleteMilestoneStoryR milestoneId storyId = do
+    maybeLink <- runDB $ Q.findMilestoneStory milestoneId storyId
+    when (isNothing maybeLink) $ notFound
+    runDB $
+        deleteWhere
+            [ MilestoneStoryMilestoneId ==. milestoneId
+            , MilestoneStoryStoryId ==. storyId
+            ]

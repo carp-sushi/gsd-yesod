@@ -22,4 +22,4 @@ getLimit (Just size) = max 1 (min size 100)
 -- Helper to get page offset or default
 getOffset :: Maybe Int -> Int
 getOffset Nothing = 0
-getOffset (Just page) = max page 0
+getOffset (Just offset) = max offset 0
