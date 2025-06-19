@@ -10,10 +10,13 @@ import Control.Monad (when)
 import qualified Database as DB
 import Foundation
 import Handler
+import Network.Wai (Middleware)
 import Network.Wai.Handler.Warp (defaultSettings, runSettings, setPort)
+import Network.Wai.Middleware.RequestLogger
 import Settings (Settings (..), loadSettings)
 import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet)
 import Yesod.Core
+import Yesod.Core.Types (loggerSet)
 import Yesod.Default.Config2 (makeYesodLogger)
 
 mkYesodDispatch "App" resourcesApp
@@ -39,6 +42,15 @@ makeApp appSettings = do
 -- Create a WAI Application and apply logger middlewares.
 makeWaiApplication :: App -> IO Application
 makeWaiApplication app = do
+    logWare <- makeLogWare app
     appPlain <- toWaiAppPlain app
-    mkLogWare <- mkDefaultMiddlewares (appLogger app)
-    return $ mkLogWare appPlain
+    return $ logWare appPlain
+
+-- Create logging middleware.
+makeLogWare :: App -> IO Middleware
+makeLogWare app =
+    mkRequestLogger
+        defaultRequestLoggerSettings
+            { outputFormat = Detailed True
+            , destination = Logger $ loggerSet $ appLogger app
+            }

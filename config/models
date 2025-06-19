@@ -1,6 +1,12 @@
 -- By default this file is used by `persistFileWith` in Model.hs (which is imported by Foundation.hs)
 -- Syntax for this file here: https://github.com/yesodweb/persistent/blob/master/docs/Persistent-entity-syntax.md
 
+Milestone json sql=milestones
+    name String
+    startDate UTCTime Maybe
+    completeDate UTCTime Maybe
+    deriving Eq Read Show
+
 Story json sql=stories
     name String
     deriving Eq Read Show
@@ -9,12 +15,6 @@ Task json sql=tasks
     storyId StoryId
     name String
     status TaskStatus default='Todo'
-    deriving Eq Read Show
-
-Milestone json sql=milestones
-    name String
-    startDate UTCTime Maybe
-    completeDate UTCTime Maybe
     deriving Eq Read Show
 
 MilestoneStory json sql=milestone_stories

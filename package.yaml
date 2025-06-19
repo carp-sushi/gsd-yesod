@@ -17,6 +17,8 @@ dependencies:
 - time
 - fast-logger
 - warp
+- wai
+- wai-extra
 
 # The library contains all of our application code.
 library:
