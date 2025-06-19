@@ -9,7 +9,7 @@ module TestSupport
 import Application (makeApp)
 import Control.Monad.Reader (ReaderT, ask)
 import Data.Text (Text, intercalate)
-import Database.Persist.Sql  (SqlPersistM, runSqlPersistMPool, rawExecute, rawSql, unSingle)
+import Database.Persist.Sql (SqlPersistM, runSqlPersistMPool, rawExecute, rawSql, unSingle)
 import Database.Persist.SqlBackend (SqlBackend, getEscapedRawName)
 import Text.Shakespeare.Text (st)
 
@@ -35,7 +35,7 @@ withApp = before $ do
     settings <- loadSettings "config/settings_test"
     app <- makeApp settings
     truncateTables app
-    return (app, id) -- id disables access logging
+    return (app, id) -- id disables access logging for tests
 
 truncateTables :: App -> IO ()
 truncateTables app = runDBWithApp app $ do

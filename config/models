@@ -4,18 +4,21 @@
 Story json sql=stories
     name String
     deriving Eq Read Show
+
 Task json sql=tasks
     storyId StoryId
     name String
     status TaskStatus default='Todo'
     deriving Eq Read Show
+
 Milestone json sql=milestones
     name String
     startDate UTCTime Maybe
     completeDate UTCTime Maybe
     deriving Eq Read Show
+
 MilestoneStory json sql=milestone_stories
     milestoneId MilestoneId
     storyId StoryId
-    UniqueMilestoneStory milestoneId storyId
+    Primary milestoneId storyId
     deriving Eq Read Show

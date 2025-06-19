@@ -9,7 +9,7 @@ import Database.Persist.Postgresql (ConnectionPool, createPostgresqlPool, runMig
 import Model (migrateAll)
 import Settings (Settings (..))
 
--- Create a database connection pool.
+-- | Create a database connection pool.
 createPool :: Settings -> IO ConnectionPool
 createPool settings =
     runNoLoggingT $
@@ -17,7 +17,7 @@ createPool settings =
             (cs $ settingsDatabaseUrl settings)
             (settingsPoolSize settings)
 
--- Run SQL migrations on a database.
+-- | Run SQL migrations on a database.
 runMigrations :: ConnectionPool -> IO ()
 runMigrations pool =
     runNoLoggingT $ do

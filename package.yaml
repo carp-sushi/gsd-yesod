@@ -24,6 +24,7 @@ library:
   ghc-options:
   - -Wall
   - -ddump-splices
+  - -ddump-to-file
   - -fwarn-tabs
   - -O2
 

@@ -19,16 +19,16 @@ import Yesod.Default.Config2 (makeYesodLogger)
 mkYesodDispatch "App" resourcesApp
 
 -- | Create and run the gsd-server application.
-appMain :: String -> IO ()
-appMain file = do
-    appSettings <- loadSettings file
-    app <- makeApp appSettings
+appMain :: FilePath -> IO ()
+appMain filePath = do
+    settings <- loadSettings filePath
+    app <- makeApp settings
     waiApp <- makeWaiApplication app
     runSettings
-        (setPort (settingsHttpPort appSettings) defaultSettings)
+        (setPort (settingsHttpPort settings) defaultSettings)
         waiApp
 
--- Create the core application
+-- | Create the core application
 makeApp :: Settings -> IO App
 makeApp appSettings = do
     appConnectionPool <- DB.createPool appSettings

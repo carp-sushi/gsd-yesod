@@ -7,9 +7,9 @@ module Settings (
 ) where
 
 import Data.Configurator
-import Data.Text
+import Data.Text (Text)
 
--- | App settings
+-- | App settings type.
 data Settings = Settings
     { settingsDatabaseUrl :: Text
     , settingsPoolSize :: Int
@@ -19,10 +19,10 @@ data Settings = Settings
     }
     deriving (Eq, Ord, Show)
 
--- | Read app config from file.
+-- | Load settings from file.
 loadSettings :: FilePath -> IO Settings
-loadSettings file = do
-    cfg <- load [Required file]
+loadSettings filePath = do
+    cfg <- load [Required filePath]
     settingsDatabaseUrl <- require cfg "databaseUrl"
     settingsPoolSize <- require cfg "poolSize"
     settingsHttpPort <- require cfg "httpPort"

@@ -7,7 +7,7 @@ import Control.Monad.IO.Class (MonadIO)
 import Database.Esqueleto.Experimental
 import Model
 
--- | Find a milestone story link if one exists.
+-- | Find a link between a milestone and a story if it exists.
 findMilestoneStory ::
     (MonadIO m) =>
     MilestoneId ->
@@ -21,7 +21,7 @@ findMilestoneStory milestoneId storyId =
             ms ^. MilestoneStoryStoryId ==. val storyId
         return ms
 
--- | Select milestones linked to a given story.
+-- | Select milestones linked to a story.
 findStoryMilestones ::
     (MonadIO m) =>
     StoryId ->
@@ -37,7 +37,7 @@ findStoryMilestones storyId =
             ms ^. MilestoneStoryStoryId ==. val storyId
         return m
 
--- | Select stories linked to a given milestone.
+-- | Select stories linked to a milestone.
 findMilestoneStories ::
     (MonadIO m) =>
     MilestoneId ->

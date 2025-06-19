@@ -42,21 +42,21 @@ deleteStoryR storyId = do
 -- | Create a story.
 postStoriesR :: Handler Value
 postStoriesR = do
-    story <- (requireCheckJsonBody :: Handler Story)
+    story <- requireCheckJsonBody :: Handler Story
     inserted <- runDB $ insertEntity story
     returnJson inserted
 
 -- | Update a story.
 putStoryR :: StoryId -> Handler Value
 putStoryR storyId = do
-    story <- (requireCheckJsonBody :: Handler Story)
+    story <- requireCheckJsonBody :: Handler Story
     runDB $ update storyId [StoryName =. storyName story]
     returnJson $ storyDto storyId story
 
 -- | Create a JSON data transfer object for a story.
 storyDto :: StoryId -> Story -> Value
 storyDto storyId (Story name) =
-    object ["id" .= toJSON storyId, "name" .= toJSON name]
+    object ["id" .= storyId, "name" .= name]
 
 -- | List a page of tasks for a story.
 getTasksR :: StoryId -> Handler Value
@@ -86,7 +86,7 @@ deleteTaskR storyId taskId = do
 -- | Create a task.
 postTasksR :: StoryId -> Handler Value
 postTasksR storyId = do
-    task <- (requireCheckJsonBody :: Handler Task)
+    task <- requireCheckJsonBody :: Handler Task
     when (storyId /= taskStoryId task) $
         invalidArgs ["StoryId mismatch: URI does not match request body"]
     inserted <- runDB $ insertEntity task
@@ -95,7 +95,7 @@ postTasksR storyId = do
 -- | Update a task.
 putTaskR :: StoryId -> TaskId -> Handler Value
 putTaskR storyId taskId = do
-    task <- (requireCheckJsonBody :: Handler Task)
+    task <- requireCheckJsonBody :: Handler Task
     when (storyId /= taskStoryId task) $
         invalidArgs ["StoryId mismatch: URI does not match request body"]
     runDB $ update taskId [TaskName =. taskName task, TaskStatus =. taskStatus task]
@@ -105,10 +105,10 @@ putTaskR storyId taskId = do
 taskDto :: TaskId -> Task -> Value
 taskDto taskId (Task storyId name status) =
     object
-        [ "id" .= toJSON taskId
-        , "name" .= toJSON name
-        , "status" .= toJSON status
-        , "storyId" .= toJSON storyId
+        [ "id" .= taskId
+        , "name" .= name
+        , "status" .= status
+        , "storyId" .= storyId
         ]
 
 -- | List a page of milestones.
@@ -129,7 +129,7 @@ getMilestoneR milestoneId =
 -- | Create a milestone.
 postMilestonesR :: Handler Value
 postMilestonesR = do
-    milestone <- (requireCheckJsonBody :: Handler Milestone)
+    milestone <- requireCheckJsonBody :: Handler Milestone
     inserted <- runDB $ insertEntity milestone
     returnJson inserted
 
@@ -144,7 +144,7 @@ deleteMilestoneR milestoneId = do
 -- | Update a milestone.
 putMilestoneR :: MilestoneId -> Handler Value
 putMilestoneR milestoneId = do
-    milestone <- (requireCheckJsonBody :: Handler Milestone)
+    milestone <- requireCheckJsonBody :: Handler Milestone
     runDB $ do
         _ <- get404 milestoneId
         update
@@ -160,44 +160,41 @@ putMilestoneR milestoneId = do
 milestoneDto :: MilestoneId -> Milestone -> Value
 milestoneDto storyId (Milestone name startDate completeDate) =
     object
-        [ "id" .= toJSON storyId
-        , "name" .= toJSON name
-        , "startDate" .= toJSON startDate
-        , "completeDate" .= toJSON completeDate
+        [ "id" .= storyId
+        , "name" .= name
+        , "startDate" .= startDate
+        , "completeDate" .= completeDate
         ]
 
 -- | Link a story to a milestone.
 postMilestoneStoriesR :: MilestoneId -> Handler Value
 postMilestoneStoriesR milestoneId = do
-    req <- (requireCheckJsonBody :: Handler MilestoneStory)
+    req <- requireCheckJsonBody :: Handler MilestoneStory
 
     when (milestoneId /= milestoneStoryMilestoneId req) $
         invalidArgs ["MilestoneId mismatch: URI does not match request body"]
 
-    maybeLink <-
-        runDB $
-            Q.findMilestoneStory
-                (milestoneStoryMilestoneId req)
-                (milestoneStoryStoryId req)
+    let storyId = milestoneStoryStoryId req
+    maybeLink <- runDB $ Q.findMilestoneStory milestoneId storyId
 
     case maybeLink of
         Just link -> do
-            $(logWarn) "Milestone story link already exists"
+            $logWarn "Milestone story link already exists"
             returnJson link
         Nothing -> do
             inserted <- runDB $ do
                 _ <- get404 milestoneId
-                _ <- get404 $ milestoneStoryStoryId req
+                _ <- get404 storyId
                 insertEntity req
             returnJson inserted
 
--- | List all stories for a milestone.
+-- | List all stories linked to a milestone.
 getMilestoneStoriesR :: MilestoneId -> Handler Value
 getMilestoneStoriesR milestoneId =
     runDB (Q.findMilestoneStories milestoneId)
         >>= returnJson
 
--- | List all milestones a story is linked to.
+-- | List all milestones linked to a story.
 getStoryMilestonesR :: StoryId -> Handler Value
 getStoryMilestonesR storyId =
     runDB (Q.findStoryMilestones storyId)
@@ -207,7 +204,7 @@ getStoryMilestonesR storyId =
 deleteMilestoneStoryR :: MilestoneId -> StoryId -> Handler ()
 deleteMilestoneStoryR milestoneId storyId = do
     maybeLink <- runDB $ Q.findMilestoneStory milestoneId storyId
-    when (isNothing maybeLink) $ notFound
+    when (isNothing maybeLink) $ invalidArgs ["Milestone not linked to story"]
     runDB $
         deleteWhere
             [ MilestoneStoryMilestoneId ==. milestoneId

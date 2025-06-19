@@ -14,14 +14,17 @@ import Yesod.Core
 import Yesod.Core.Types (Logger)
 import Yesod.Persist.Core
 
+-- | The core application type.
 data App = App
     { appSettings :: Settings
     , appConnectionPool :: ConnectionPool
     , appLogger :: Logger
     }
 
+-- Create a Yesod instance for the core application type.
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
+-- Customize the Yesod application instance.
 instance Yesod App where
     makeSessionBackend :: App -> IO (Maybe SessionBackend)
     makeSessionBackend _ = return Nothing
@@ -36,6 +39,7 @@ instance Yesod App where
                 || level == LevelWarn
                 || level == LevelError
 
+-- Set up database persistence for the Yesod application instance.
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
     runDB :: SqlPersistT Handler a -> Handler a
