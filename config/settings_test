@@ -1,4 +1,4 @@
-databaseUrl = "host=localhost dbname=gsd_yesod_test user=postgres password=password1 port=5432"
+databaseUrl = "host=$(TEST_DB_HOST) dbname=$(TEST_DB_NAME) user=$(TEST_DB_USER) password=$(TEST_DB_PASS) port=$(TEST_DB_PORT)"
 poolSize = 2
 runMigrations = true
 httpPort = 3001

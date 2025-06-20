@@ -3,7 +3,15 @@
 all: format build
 
 format:
-	@fourmolu -q -i src/{Application,Database,Foundation,Handler,Model,Page,Settings}.hs app/Main.hs
+	@fourmolu -q -i \
+		app/Main.hs \
+		src/Application.hs \
+		src/Database.hs \
+		src/Foundation.hs \
+		src/Handler.hs \
+		src/Model.hs \
+		src/Page.hs \
+		src/Settings.hs
 
 build:
 	@stack build
