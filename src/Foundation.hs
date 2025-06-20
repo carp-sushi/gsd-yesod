@@ -43,6 +43,6 @@ instance Yesod App where
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
     runDB :: SqlPersistT Handler a -> Handler a
-    runDB action = do
+    runDB query = do
         (App _ pool _) <- getYesod
-        runSqlPool action pool
+        runSqlPool query pool

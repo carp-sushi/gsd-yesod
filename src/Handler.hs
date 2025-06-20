@@ -8,6 +8,7 @@ module Handler where
 import Control.Monad (when)
 import Data.Maybe (isNothing)
 import Database.Persist.Sql
+import Dto (milestoneDto, storyDto, taskDto)
 import Foundation
 import Model
 import Page (getPageParams)
@@ -53,11 +54,6 @@ putStoryR storyId = do
     runDB $ update storyId [StoryName =. storyName story]
     returnJson $ storyDto storyId story
 
--- | Create a JSON data transfer object for a story.
-storyDto :: StoryId -> Story -> Value
-storyDto storyId (Story name) =
-    object ["id" .= storyId, "name" .= name]
-
 -- | List a page of tasks for a story.
 getTasksR :: StoryId -> Handler Value
 getTasksR storyId = do
@@ -100,16 +96,6 @@ putTaskR storyId taskId = do
         invalidArgs ["StoryId mismatch: URI does not match request body"]
     runDB $ update taskId [TaskName =. taskName task, TaskStatus =. taskStatus task]
     returnJson $ taskDto taskId task
-
--- | Create a JSON data transfer object for a task.
-taskDto :: TaskId -> Task -> Value
-taskDto taskId (Task storyId name status) =
-    object
-        [ "id" .= taskId
-        , "name" .= name
-        , "status" .= status
-        , "storyId" .= storyId
-        ]
 
 -- | List a page of milestones.
 getMilestonesR :: Handler Value
@@ -155,16 +141,6 @@ putMilestoneR milestoneId = do
             ]
     returnJson $
         milestoneDto milestoneId milestone
-
--- | Create a JSON data transfer object for a milestone.
-milestoneDto :: MilestoneId -> Milestone -> Value
-milestoneDto storyId (Milestone name startDate completeDate) =
-    object
-        [ "id" .= storyId
-        , "name" .= name
-        , "startDate" .= startDate
-        , "completeDate" .= completeDate
-        ]
 
 -- | Link a story to a milestone.
 postMilestoneStoriesR :: MilestoneId -> Handler Value

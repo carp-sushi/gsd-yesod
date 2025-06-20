@@ -35,7 +35,7 @@ withApp = before $ do
     settings <- loadSettings "config/settings_test"
     app <- makeApp settings
     truncateTables app
-    return (app, id) -- id disables access logging for tests
+    return (app, id) -- id disables request logging for tests
 
 truncateTables :: App -> IO ()
 truncateTables app = runDBWithApp app $ do
