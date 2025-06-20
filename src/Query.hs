@@ -35,6 +35,8 @@ findStoryMilestones storyId =
             `on` \(m :& ms) -> m ^. MilestoneId ==. ms ^. MilestoneStoryMilestoneId
         where_ $
             ms ^. MilestoneStoryStoryId ==. val storyId
+        orderBy
+            [desc $ m ^. MilestoneStartDate]
         return m
 
 -- | Select stories linked to a milestone.
@@ -51,4 +53,6 @@ findMilestoneStories milestoneId =
             `on` \(s :& ms) -> s ^. StoryId ==. ms ^. MilestoneStoryStoryId
         where_ $
             ms ^. MilestoneStoryMilestoneId ==. val milestoneId
+        orderBy
+            [desc $ s ^. StoryId]
         return s
