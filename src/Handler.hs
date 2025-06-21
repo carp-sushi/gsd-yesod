@@ -5,24 +5,23 @@
 
 module Handler where
 
-import Control.Monad (when)
-import Data.Maybe (isNothing)
-import Database.Persist.Sql
 import Dto (milestoneDto, storyDto, taskDto)
 import Foundation
 import Model
-import Page (getPageParams)
+import Page (readLimitOffsetParams)
 import qualified Query as Q
+
+import Control.Monad (when)
+import Data.Maybe (isNothing)
+import Database.Persist.Sql
 import Yesod.Core
 import Yesod.Persist.Core (get404, runDB)
 
 -- | List a page of stories.
 getStoriesR :: Handler Value
 getStoriesR = do
-    maybeLimit <- lookupGetParam "limit"
-    maybeOffset <- lookupGetParam "offset"
-    let (limit, offset) = getPageParams maybeLimit maybeOffset
-    stories <- runDB $ selectList [] [LimitTo limit, OffsetBy offset, Desc StoryId]
+    (limit, offset) <- readLimitOffsetParams
+    stories <- runDB $ selectList [] [LimitTo limit, OffsetBy offset, Asc StoryId]
     returnJson stories
 
 -- | Get a story.
@@ -31,7 +30,7 @@ getStoryR storyId =
     runDB (get404 storyId)
         >>= returnJson . storyDto storyId
 
--- | Delete a story and its tasks.
+-- | Delete a story and any relations.
 deleteStoryR :: StoryId -> Handler ()
 deleteStoryR storyId = do
     runDB $ do
@@ -57,9 +56,7 @@ putStoryR storyId = do
 -- | List a page of tasks for a story.
 getTasksR :: StoryId -> Handler Value
 getTasksR storyId = do
-    maybeLimit <- lookupGetParam "limit"
-    maybeOffset <- lookupGetParam "offset"
-    let (limit, offset) = getPageParams maybeLimit maybeOffset
+    (limit, offset) <- readLimitOffsetParams
     tasks <- runDB $ selectList [TaskStoryId ==. storyId] [LimitTo limit, OffsetBy offset]
     returnJson tasks
 
@@ -96,10 +93,8 @@ putTaskR storyId taskId = do
 -- | List a page of milestones.
 getMilestonesR :: Handler Value
 getMilestonesR = do
-    maybeLimit <- lookupGetParam "limit"
-    maybeOffset <- lookupGetParam "offset"
-    let (limit, offset) = getPageParams maybeLimit maybeOffset
-    milestones <- runDB $ selectList [] [LimitTo limit, OffsetBy offset, Desc MilestoneStartDate]
+    (limit, offset) <- readLimitOffsetParams
+    milestones <- runDB $ selectList [] [LimitTo limit, OffsetBy offset, Asc MilestoneStartDate]
     returnJson milestones
 
 -- | Get a milestone.

@@ -5,7 +5,7 @@ module MilestoneSpec (spec) where
 import TestSupport
 import Data.Aeson
 import Data.Text (Text)
-import Data.Time.Clock (getCurrentTime)
+import Data.Time.Clock (addUTCTime, getCurrentTime)
 
 spec :: Spec
 spec = withApp $ do
@@ -19,9 +19,8 @@ spec = withApp $ do
 
     describe "get milestone" $ do
         it "returns 200" $ do
-            startDate <- liftIO $ getCurrentTime
             milestoneId <- runDB $ insert $
-                Milestone "Test Milestone" (Just startDate) Nothing
+                Milestone "Test Milestone" Nothing Nothing
             request $ do
                 setMethod "GET"
                 setUrl $ MilestoneR milestoneId
@@ -30,7 +29,13 @@ spec = withApp $ do
 
     describe "create milestone" $ do
         it "returns 200 when JSON body is valid" $ do
-            let body = object [ "name" .= ("Test Milestone" :: Text) ]
+            startDate <- liftIO $ getCurrentTime
+            let completeDate = addUTCTime (12 * 24 * 60 * 60) startDate
+            let body = object
+                    [ "name" .= ("Test Milestone" :: Text)
+                    , "startDate" .= startDate
+                    , "completeDate" .= completeDate
+                    ]
             request $ do
                 setMethod "POST"
                 setUrl MilestonesR

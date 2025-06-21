@@ -32,7 +32,7 @@ runDBWithApp app query =
 
 withApp :: SpecWith (TestApp App) -> Spec
 withApp = before $ do
-    settings <- loadSettings "config/settings_test"
+    settings <- loadSettings "config/test/settings"
     app <- makeApp settings
     truncateTables app
     return (app, id) -- id disables request logging for tests

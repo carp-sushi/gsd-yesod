@@ -6,10 +6,11 @@
 
 module Foundation where
 
-import Control.Monad.Logger (LogSource)
-import Database.Persist.Sql
 import Model (MilestoneId, StoryId, TaskId)
 import Settings
+
+import Control.Monad.Logger (LogSource)
+import Database.Persist.Sql
 import Yesod.Core
 import Yesod.Core.Types (Logger)
 import Yesod.Persist.Core
