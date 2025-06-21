@@ -13,27 +13,25 @@ readPageParams :: Handler (Int, Int)
 readPageParams = do
     maybePageSize <- lookupGetParam "pageSize"
     maybePageNumber <- lookupGetParam "pageNumber"
-    let (pageSize, pageNumber) = parsePageParams maybePageSize maybePageNumber
+    let pageSize = parsePageSize maybePageSize
+        pageNumber = parsePageNumber maybePageNumber
     return (pageSize, pageSize * (pageNumber - 1))
 
--- | Parse and get page size and page number.
-parsePageParams :: Maybe Text -> Maybe Text -> (Int, Int)
-parsePageParams maybePageSize maybePageNumber =
-    ( clampPageSize $ parseInt maybePageSize
-    , clampPageNumber $ parseInt maybePageNumber
-    )
+-- Parse page size and clamp it within a set range.
+parsePageSize :: Maybe Text -> Int
+parsePageSize = clamp . parseInt
+  where
+    clamp Nothing = 10
+    clamp (Just n) = max 1 (min n 100)
 
--- Convert text page params to integers.
+-- Parse page number and clamp it within a set range.
+parsePageNumber :: Maybe Text -> Int
+parsePageNumber = clamp . parseInt
+  where
+    clamp Nothing = 1
+    clamp (Just n) = max n 1
+
+-- Convert text to int if defined.
 parseInt :: Maybe Text -> Maybe Int
-parseInt (Just t) = readMaybe (cs t)
-parseInt Nothing = Nothing
-
--- Determine page size and clamp it within a set range.
-clampPageSize :: Maybe Int -> Int
-clampPageSize Nothing = 10
-clampPageSize (Just pageSize) = max 1 (min pageSize 100)
-
--- Determine page number and clamp it within a set range.
-clampPageNumber :: Maybe Int -> Int
-clampPageNumber Nothing = 1
-clampPageNumber (Just pageNumber) = max pageNumber 1
+parseInt mt =
+    mt >>= readMaybe . cs
