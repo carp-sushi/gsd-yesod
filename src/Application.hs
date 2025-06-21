@@ -13,7 +13,7 @@ import Settings (Settings (..), loadSettings)
 
 import Control.Monad (when)
 import Network.Wai (Middleware)
-import Network.Wai.Handler.Warp (defaultSettings, runSettings, setPort)
+import qualified Network.Wai.Handler.Warp as Warp
 import Network.Wai.Middleware.RequestLogger
 import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet)
 import Yesod.Core
@@ -28,8 +28,7 @@ appMain filePath = do
     settings <- loadSettings filePath
     app <- makeApp settings
     waiApp <- makeWaiApplication app
-    flip runSettings waiApp $
-        setPort (settingsHttpPort settings) defaultSettings
+    Warp.runSettings (warpSettings app) waiApp
 
 -- | Create the core application
 makeApp :: Settings -> IO App
@@ -54,3 +53,10 @@ makeLogWare app =
             { outputFormat = Detailed False -- no colors
             , destination = Logger $ loggerSet $ appLogger app
             }
+
+-- | Create warp settings for App.
+warpSettings :: App -> Warp.Settings
+warpSettings app =
+    Warp.setPort
+        (settingsHttpPort $ appSettings app)
+        Warp.defaultSettings
