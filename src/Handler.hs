@@ -67,24 +67,21 @@ getTasksR storyId = do
 getTaskR :: StoryId -> TaskId -> Handler Value
 getTaskR storyId taskId = do
     task <- runDB $ get404 taskId
-    when (storyId /= taskStoryId task) $
-        invalidArgs ["StoryId mismatch: URI does not match request body"]
+    validateStoryId storyId task
     returnJson $ taskDto taskId task
 
 -- | Delete a task.
 deleteTaskR :: StoryId -> TaskId -> Handler ()
 deleteTaskR storyId taskId = do
     task <- runDB $ get404 taskId
-    when (storyId /= taskStoryId task) $
-        invalidArgs ["StoryId mismatch: URI does not match request body"]
+    validateStoryId storyId task
     runDB $ delete taskId
 
 -- | Create a task.
 postTasksR :: StoryId -> Handler Value
 postTasksR storyId = do
     task <- requireCheckJsonBody :: Handler Task
-    when (storyId /= taskStoryId task) $
-        invalidArgs ["StoryId mismatch: URI does not match request body"]
+    validateStoryId storyId task
     inserted <- runDB $ insertEntity task
     returnJson inserted
 
@@ -92,8 +89,7 @@ postTasksR storyId = do
 putTaskR :: StoryId -> TaskId -> Handler Value
 putTaskR storyId taskId = do
     task <- requireCheckJsonBody :: Handler Task
-    when (storyId /= taskStoryId task) $
-        invalidArgs ["StoryId mismatch: URI does not match request body"]
+    validateStoryId storyId task
     runDB $ update taskId [TaskName =. taskName task, TaskStatus =. taskStatus task]
     returnJson $ taskDto taskId task
 
@@ -186,3 +182,9 @@ deleteMilestoneStoryR milestoneId storyId = do
             [ MilestoneStoryMilestoneId ==. milestoneId
             , MilestoneStoryStoryId ==. storyId
             ]
+
+-- | Validate that a story ID from the URI matches the story ID in a task.
+validateStoryId :: StoryId -> Task -> Handler ()
+validateStoryId storyId task =
+    when (storyId /= taskStoryId task) $
+        invalidArgs ["StoryId mismatch: URI does not match request body"]
