@@ -8,7 +8,7 @@ module Handler where
 import Dto (milestoneDto, storyDto, taskDto)
 import Foundation
 import Model
-import Page (readLimitOffsetParams)
+import Page (readPageParams)
 import qualified Query as Q
 
 import Control.Monad (when)
@@ -20,7 +20,7 @@ import Yesod.Persist.Core (get404, runDB)
 -- | List a page of stories.
 getStoriesR :: Handler Value
 getStoriesR = do
-    (limit, offset) <- readLimitOffsetParams
+    (limit, offset) <- readPageParams
     stories <- runDB $ selectList [] [LimitTo limit, OffsetBy offset, Asc StoryId]
     returnJson stories
 
@@ -56,7 +56,7 @@ putStoryR storyId = do
 -- | List a page of tasks for a story.
 getTasksR :: StoryId -> Handler Value
 getTasksR storyId = do
-    (limit, offset) <- readLimitOffsetParams
+    (limit, offset) <- readPageParams
     tasks <- runDB $ selectList [TaskStoryId ==. storyId] [LimitTo limit, OffsetBy offset]
     returnJson tasks
 
@@ -93,7 +93,7 @@ putTaskR storyId taskId = do
 -- | List a page of milestones.
 getMilestonesR :: Handler Value
 getMilestonesR = do
-    (limit, offset) <- readLimitOffsetParams
+    (limit, offset) <- readPageParams
     milestones <- runDB $ selectList [] [LimitTo limit, OffsetBy offset, Asc MilestoneStartDate]
     returnJson milestones
 
