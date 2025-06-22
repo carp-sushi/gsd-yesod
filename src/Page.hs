@@ -2,8 +2,7 @@
 
 module Page where
 
-import Data.String.Conversions (cs)
-import Data.Text (Text)
+import Data.Text (Text, unpack)
 import Foundation
 import Text.Read (readMaybe)
 import Yesod.Core
@@ -34,4 +33,4 @@ parsePageNumber = clamp . parseInt
 -- Convert text to int if defined.
 parseInt :: Maybe Text -> Maybe Int
 parseInt mt =
-    mt >>= readMaybe . cs
+    mt >>= readMaybe . unpack

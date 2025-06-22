@@ -4,7 +4,7 @@ module Database (
 ) where
 
 import Control.Monad.Logger (runNoLoggingT)
-import Data.String.Conversions (cs)
+import Data.Text.Encoding (encodeUtf8)
 import Database.Persist.Postgresql (ConnectionPool, createPostgresqlPool, runMigrationSilent, runSqlPool)
 import Model (migrateAll)
 import Settings (Settings (..))
@@ -14,7 +14,7 @@ createPool :: Settings -> IO ConnectionPool
 createPool settings =
     runNoLoggingT $
         createPostgresqlPool
-            (cs $ settingsDatabaseUrl settings)
+            (encodeUtf8 $ settingsDatabaseUrl settings)
             (settingsPoolSize settings)
 
 -- | Run SQL migrations on a database.

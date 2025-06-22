@@ -20,6 +20,7 @@ import Yesod.Core
 import Yesod.Core.Types (loggerSet)
 import Yesod.Default.Config2 (makeYesodLogger)
 
+-- Generate dispatch code linking requests for routes to handler functions.
 mkYesodDispatch "App" resourcesApp
 
 -- | Create and run the gsd-server application.

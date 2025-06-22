@@ -1,6 +1,6 @@
 .PHONY: all format build test lint run clean watch
 
-all: format build
+all: format build test
 
 format:
 	@fourmolu -q -i \
