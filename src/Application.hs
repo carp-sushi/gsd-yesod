@@ -29,6 +29,7 @@ appMain filePath = do
     settings <- loadSettings filePath
     app <- makeApp settings
     waiApp <- makeWaiApplication app
+    putStrLn $ "Running gsd-server on port " <> show (settingsHttpPort settings)
     Warp.runSettings (warpSettings app) waiApp
 
 -- | Create the core application
