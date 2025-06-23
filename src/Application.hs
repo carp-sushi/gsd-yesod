@@ -13,10 +13,12 @@ import Handler
 import Settings (Settings (..), loadSettings)
 
 import Control.Monad (when)
+import Data.Text (pack)
 import Network.Wai (Middleware)
 import qualified Network.Wai.Handler.Warp as Warp
 import Network.Wai.Logger (clockDateCacher)
 import Network.Wai.Middleware.RequestLogger
+import Say (say)
 import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet)
 import Yesod.Core
 import qualified Yesod.Core.Types as YCT
@@ -30,7 +32,7 @@ appMain filePath = do
     settings <- loadSettings filePath
     app <- makeApp settings
     waiApp <- makeWaiApplication app
-    putStrLn $ "Running gsd-server on port " <> show (settingsHttpPort settings)
+    say $ "Running gsd-server on port " <> (pack . show) (settingsHttpPort settings)
     Warp.runSettings (warpSettings app) waiApp
 
 -- | Create the core application

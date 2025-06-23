@@ -6,19 +6,20 @@ dependencies:
 - aeson
 - bytestring
 - configurator
-- yesod-core
-- yesod-persistent
 - esqueleto
+- fast-logger
 - monad-logger
 - persistent
 - persistent-postgresql
+- say
 - text
 - time
-- fast-logger
-- warp
 - wai
 - wai-extra
 - wai-logger
+- warp
+- yesod-core
+- yesod-persistent
 
 # The library contains all of our application code.
 library:
