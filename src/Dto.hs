@@ -3,7 +3,7 @@
 module Dto (
     storyDto,
     taskDto,
-    milestoneDto
+    milestoneDto,
 ) where
 
 import Data.Aeson

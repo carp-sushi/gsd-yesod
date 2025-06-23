@@ -7,6 +7,7 @@ format:
 		app/Main.hs \
 		src/Application.hs \
 		src/Database.hs \
+		src/Dto.hs \
 		src/Foundation.hs \
 		src/Handler.hs \
 		src/Model.hs \
