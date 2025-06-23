@@ -36,7 +36,7 @@ instance Yesod App where
     shouldLogIO :: App -> LogSource -> LogLevel -> IO Bool
     shouldLogIO app _source level =
         return $
-            settingsLogEverything (appSettings app)
+            settingsVerboseLogging (appSettings app)
                 || level == LevelWarn
                 || level == LevelError
 

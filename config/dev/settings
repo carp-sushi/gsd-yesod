@@ -2,4 +2,4 @@ databaseUrl = "host=$(DB_HOST) dbname=$(DB_NAME) user=$(DB_USER) password=$(DB_P
 poolSize = 6
 runMigrations = true
 httpPort = 3000
-logEverything = true
+verboseLogging = true

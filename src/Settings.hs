@@ -15,7 +15,7 @@ data Settings = Settings
     , settingsPoolSize :: Int
     , settingsHttpPort :: Int
     , settingsRunMigrations :: Bool
-    , settingsLogEverything :: Bool
+    , settingsVerboseLogging :: Bool
     }
     deriving (Eq, Ord, Show)
 
@@ -27,5 +27,5 @@ loadSettings filePath = do
     settingsPoolSize <- require cfg "poolSize"
     settingsHttpPort <- require cfg "httpPort"
     settingsRunMigrations <- require cfg "runMigrations"
-    settingsLogEverything <- require cfg "logEverything"
+    settingsVerboseLogging <- require cfg "verboseLogging"
     return Settings{..}

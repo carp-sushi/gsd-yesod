@@ -13,7 +13,7 @@ import Settings (Settings (..))
 -- | Create a database connection pool.
 createPool :: Settings -> IO ConnectionPool
 createPool settings =
-    if (settingsLogEverything settings)
+    if (settingsVerboseLogging settings)
         then createPoolStdoutLogging url size
         else createPoolNoLogging url size
   where
