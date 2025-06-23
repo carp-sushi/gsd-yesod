@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Dto (
-    storyDto, 
-    taskDto, 
+    storyDto,
+    taskDto,
     milestoneDto
 ) where
 
@@ -12,7 +12,10 @@ import Model
 -- | Create a JSON data transfer object for a story.
 storyDto :: StoryId -> Story -> Value
 storyDto storyId (Story name) =
-    object ["id" .= storyId, "name" .= name]
+    object
+        [ "id" .= storyId
+        , "name" .= name
+        ]
 
 -- | Create a JSON data transfer object for a task.
 taskDto :: TaskId -> Task -> Value
@@ -32,4 +35,4 @@ milestoneDto storyId (Milestone name startDate completeDate) =
         , "name" .= name
         , "startDate" .= startDate
         , "completeDate" .= completeDate
-        ] 
+        ]
