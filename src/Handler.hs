@@ -9,7 +9,7 @@ import Dto (milestoneDto, storyDto, taskDto)
 import Foundation
 import Model
 import Page (readPageParams)
-import qualified Query as Q
+import qualified Query as Query
 
 import Control.Monad (when)
 import Data.Maybe (isNothing)
@@ -50,14 +50,19 @@ postStoriesR = do
 putStoryR :: StoryId -> Handler Value
 putStoryR storyId = do
     story <- requireCheckJsonBody :: Handler Story
-    runDB $ update storyId [StoryName =. storyName story]
+    runDB $ do
+        _ <- get404 storyId
+        update storyId [StoryName =. storyName story]
     returnJson $ storyDto storyId story
 
 -- | List a page of tasks for a story.
 getTasksR :: StoryId -> Handler Value
 getTasksR storyId = do
     (limit, offset) <- readPageParams
-    tasks <- runDB $ selectList [TaskStoryId ==. storyId] [LimitTo limit, OffsetBy offset]
+    tasks <- runDB $ do
+        selectList
+            [TaskStoryId ==. storyId]
+            [LimitTo limit, OffsetBy offset, Asc TaskId]
     returnJson tasks
 
 -- | Get a task.
@@ -72,14 +77,18 @@ deleteTaskR :: StoryId -> TaskId -> Handler ()
 deleteTaskR storyId taskId = do
     task <- runDB $ get404 taskId
     validateStoryId storyId task
-    runDB $ delete taskId
+    runDB $ do
+        _ <- get404 taskId
+        delete taskId
 
 -- | Create a task.
 postTasksR :: StoryId -> Handler Value
 postTasksR storyId = do
     task <- requireCheckJsonBody :: Handler Task
     validateStoryId storyId task
-    inserted <- runDB $ insertEntity task
+    inserted <- runDB $ do
+        _ <- get404 storyId
+        insertEntity task
     returnJson inserted
 
 -- | Update a task.
@@ -87,14 +96,27 @@ putTaskR :: StoryId -> TaskId -> Handler Value
 putTaskR storyId taskId = do
     task <- requireCheckJsonBody :: Handler Task
     validateStoryId storyId task
-    runDB $ update taskId [TaskName =. taskName task, TaskStatus =. taskStatus task]
+    runDB $ do
+        _ <- get404 taskId
+        update
+            taskId
+            [ TaskName =. taskName task
+            , TaskStatus =. taskStatus task
+            ]
     returnJson $ taskDto taskId task
 
 -- | List a page of milestones.
 getMilestonesR :: Handler Value
 getMilestonesR = do
     (limit, offset) <- readPageParams
-    milestones <- runDB $ selectList [] [LimitTo limit, OffsetBy offset, Asc MilestoneStartDate]
+    milestones <- runDB $ do
+        selectList
+            []
+            [ LimitTo limit
+            , OffsetBy offset
+            , Asc MilestoneStartDate
+            , Desc MilestoneCompleteDate
+            ]
     returnJson milestones
 
 -- | Get a milestone.
@@ -142,7 +164,7 @@ postMilestoneStoriesR milestoneId = do
         invalidArgs ["MilestoneId mismatch: URI does not match request body"]
 
     let storyId = milestoneStoryStoryId req
-    maybeLink <- runDB $ Q.findMilestoneStory milestoneId storyId
+    maybeLink <- runDB $ Query.findMilestoneStory milestoneId storyId
 
     case maybeLink of
         Just link -> do
@@ -158,19 +180,19 @@ postMilestoneStoriesR milestoneId = do
 -- | List all stories linked to a milestone.
 getMilestoneStoriesR :: MilestoneId -> Handler Value
 getMilestoneStoriesR milestoneId =
-    runDB (Q.findMilestoneStories milestoneId)
+    runDB (Query.selectMilestoneStories milestoneId)
         >>= returnJson
 
 -- | List all milestones linked to a story.
 getStoryMilestonesR :: StoryId -> Handler Value
 getStoryMilestonesR storyId =
-    runDB (Q.findStoryMilestones storyId)
+    runDB (Query.selectStoryMilestones storyId)
         >>= returnJson
 
 -- | Delete a link between a milestone and a story.
 deleteMilestoneStoryR :: MilestoneId -> StoryId -> Handler ()
 deleteMilestoneStoryR milestoneId storyId = do
-    maybeLink <- runDB $ Q.findMilestoneStory milestoneId storyId
+    maybeLink <- runDB $ Query.findMilestoneStory milestoneId storyId
     when (isNothing maybeLink) $ invalidArgs ["Milestone not linked to story"]
     runDB $
         deleteWhere

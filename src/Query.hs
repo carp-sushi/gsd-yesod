@@ -22,11 +22,11 @@ findMilestoneStory milestoneId storyId =
         return ms
 
 -- | Select milestones linked to a story.
-findStoryMilestones ::
+selectStoryMilestones ::
     (MonadIO m) =>
     StoryId ->
     SqlPersistT m [Entity Milestone]
-findStoryMilestones storyId =
+selectStoryMilestones storyId =
     select $ do
         (m :& ms) <- from $
             table @Milestone
@@ -40,11 +40,11 @@ findStoryMilestones storyId =
         return m
 
 -- | Select stories linked to a milestone.
-findMilestoneStories ::
+selectMilestoneStories ::
     (MonadIO m) =>
     MilestoneId ->
     SqlPersistT m [Entity Story]
-findMilestoneStories milestoneId =
+selectMilestoneStories milestoneId =
     select $ do
         (s :& ms) <- from $
             table @Story
