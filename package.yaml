@@ -4,7 +4,6 @@ version: "0.0.1"
 dependencies:
 - base
 - aeson
-- bytestring
 - configurator
 - esqueleto
 - fast-logger

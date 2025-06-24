@@ -5,11 +5,11 @@
 
 module Handler where
 
-import Dto (milestoneDto, storyDto, taskDto)
+import Dto
 import Foundation
 import Model
 import Page (readPageParams)
-import qualified Query as Query
+import qualified Query
 
 import Control.Monad (when)
 import Data.Maybe (isNothing)
@@ -161,21 +161,23 @@ postMilestoneStoriesR milestoneId = do
     req <- requireCheckJsonBody :: Handler MilestoneStory
 
     when (milestoneId /= milestoneStoryMilestoneId req) $
-        invalidArgs ["MilestoneId mismatch: URI does not match request body"]
+        invalidArgs
+            ["MilestoneId mismatch: URI does not match request body"]
 
-    let storyId = milestoneStoryStoryId req
-    maybeLink <- runDB $ Query.findMilestoneStory milestoneId storyId
-
-    case maybeLink of
-        Just link -> do
-            $logWarn "Milestone story link already exists"
-            returnJson link
-        Nothing -> do
-            inserted <- runDB $ do
+    entity <- runDB $ do
+        let storyId = milestoneStoryStoryId req
+        maybeLink <- Query.findMilestoneStory milestoneId storyId
+        case maybeLink of
+            Just link -> do
+                $logWarn "Milestone story link already exists"
+                return link
+            Nothing -> do
                 _ <- get404 milestoneId
                 _ <- get404 storyId
                 insertEntity req
-            returnJson inserted
+
+    let (Entity _ ms) = entity
+    returnJson ms
 
 -- | List all stories linked to a milestone.
 getMilestoneStoriesR :: MilestoneId -> Handler Value

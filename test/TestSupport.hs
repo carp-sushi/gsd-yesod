@@ -1,10 +1,10 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module TestSupport
-    ( module TestSupport
-    , module X
-    ) where
+module TestSupport (
+    module TestSupport,
+    module X,
+) where
 
 import Application (makeApp)
 import Control.Monad.Reader (ReaderT, ask)
