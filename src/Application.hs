@@ -10,18 +10,14 @@ module Application (appMain, makeApp) where
 import qualified Database as DB
 import Foundation
 import Handler
+import qualified Logger
 import Settings (Settings (..), loadSettings)
 
 import Control.Monad (when)
 import Data.Text (pack)
-import Network.Wai (Middleware)
 import qualified Network.Wai.Handler.Warp as Warp
-import Network.Wai.Logger (clockDateCacher)
-import Network.Wai.Middleware.RequestLogger
 import Say (say)
-import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet)
 import Yesod.Core
-import qualified Yesod.Core.Types as YCT
 
 -- Generate dispatch code linking requests for routes to handler functions.
 mkYesodDispatch "App" resourcesApp
@@ -39,25 +35,16 @@ appMain filePath = do
 makeApp :: Settings -> IO App
 makeApp appSettings = do
     appConnectionPool <- DB.createPool appSettings
-    appLogger <- makeAppLogger
+    appLogger <- Logger.makeAppLogger
     when (settingsRunMigrations appSettings) $ DB.runMigrations appConnectionPool
     return App{..}
 
 -- Create a WAI Application and apply logger middlewares.
 makeWaiApplication :: App -> IO Application
 makeWaiApplication app = do
-    logWare <- makeLogWare app
-    appPlain <- toWaiAppPlain app
-    return $ logWare appPlain
-
--- Create logging middleware.
-makeLogWare :: App -> IO Middleware
-makeLogWare app =
-    mkRequestLogger
-        defaultRequestLoggerSettings
-            { outputFormat = Detailed False -- no colors
-            , destination = Logger $ YCT.loggerSet $ appLogger app
-            }
+    requestLoggerMiddleware <- Logger.makeRequestLogger app
+    waiApp <- toWaiAppPlain app
+    return $ requestLoggerMiddleware waiApp
 
 -- | Create warp settings for App.
 warpSettings :: App -> Warp.Settings
@@ -65,10 +52,3 @@ warpSettings app =
     Warp.setPort
         (settingsHttpPort $ appSettings app)
         Warp.defaultSettings
-
--- | Create a yesod logger from a fast-logger logger set.
-makeAppLogger :: IO YCT.Logger
-makeAppLogger = do
-    setter <- newStdoutLoggerSet defaultBufSize
-    (getter, _) <- clockDateCacher
-    return $! YCT.Logger setter getter
