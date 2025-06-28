@@ -1,6 +1,6 @@
 module Logger (makeAppLogger, makeRequestLogger) where
 
-import Foundation (App(..))
+import Foundation (App (..))
 import Network.Wai (Middleware)
 import Network.Wai.Logger (clockDateCacher)
 import Network.Wai.Middleware.RequestLogger (
