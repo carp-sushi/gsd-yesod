@@ -1,5 +1,5 @@
 databaseUrl = "host=$(DB_HOST) dbname=$(DB_NAME) user=$(DB_USER) password=$(DB_PASS) port=$(DB_PORT)"
 poolSize = 6
 runMigrations = true
-httpPort = 3000
+httpPort = "$(HTTP_PORT)"
 verboseLogging = true

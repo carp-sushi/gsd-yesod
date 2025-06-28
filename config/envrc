@@ -3,9 +3,11 @@ export DB_NAME="gsd_yesod_dev"
 export DB_USER="postgres"
 export DB_PASS="postgres"
 export DB_PORT=5432
+export HTTP_PORT=3000
 
 export TEST_DB_HOST="localhost"
 export TEST_DB_NAME="gsd_yesod_test"
 export TEST_DB_USER="postgres"
 export TEST_DB_PASS="postgres"
 export TEST_DB_PORT=5432
+export TEST_HTTP_PORT=3001

@@ -11,10 +11,9 @@ import qualified Database as DB
 import Foundation
 import Handler
 import qualified Logger
-import Settings (Settings (..), loadSettings)
+import Settings
 
 import Control.Monad (when)
-import Data.Text (pack)
 import qualified Network.Wai.Handler.Warp as Warp
 import Say (say)
 import Yesod.Core
@@ -28,7 +27,7 @@ appMain filePath = do
     settings <- loadSettings filePath
     app <- makeApp settings
     waiApp <- makeWaiApplication app
-    say $ "Running gsd-server on port " <> (pack . show) (settingsHttpPort settings)
+    say $ "Running gsd-server on port " <> settingsHttpPort settings
     Warp.runSettings (warpSettings app) waiApp
 
 -- | Create the core application
@@ -46,9 +45,9 @@ makeWaiApplication app = do
     waiApp <- toWaiAppPlain app
     return $ requestLoggerMiddleware waiApp
 
--- | Create warp settings for App.
+-- Create warp settings for App.
 warpSettings :: App -> Warp.Settings
 warpSettings app =
     Warp.setPort
-        (settingsHttpPort $ appSettings app)
+        (settingsReadHttpPort $ appSettings app)
         Warp.defaultSettings

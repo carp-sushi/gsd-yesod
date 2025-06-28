@@ -54,5 +54,5 @@ selectMilestoneStories milestoneId =
         where_ $
             ms ^. MilestoneStoryMilestoneId ==. val milestoneId
         orderBy
-            [desc $ s ^. StoryId]
+            [asc $ s ^. StoryId]
         return s
