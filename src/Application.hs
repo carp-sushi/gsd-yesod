@@ -5,7 +5,10 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Application (appMain, makeApp) where
+module Application (
+    appMain,
+    makeApp,
+) where
 
 import qualified Database as DB
 import Foundation

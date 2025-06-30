@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Page where
+module Page (readPageParams) where
 
 import Data.Text (Text, unpack)
 import Foundation

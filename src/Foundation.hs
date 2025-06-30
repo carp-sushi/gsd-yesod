@@ -7,7 +7,7 @@
 module Foundation where
 
 import Model (MilestoneId, StoryId, TaskId)
-import Settings
+import Settings (Settings (..))
 
 import Control.Monad.Logger (LogSource)
 import Database.Persist.Sql

@@ -1,7 +1,11 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Query where
+module Query(
+    findMilestoneStory,
+    selectStoryMilestones,
+    selectMilestoneStories,
+) where
 
 import Control.Monad.IO.Class (MonadIO)
 import Database.Esqueleto.Experimental

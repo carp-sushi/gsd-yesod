@@ -1,4 +1,7 @@
-module Logger (makeAppLogger, makeRequestLogger) where
+module Logger (
+    makeAppLogger,
+    makeRequestLogger,
+) where
 
 import Foundation (App (..))
 import Network.Wai (Middleware)

@@ -3,11 +3,17 @@ module Database (
     runMigrations,
 ) where
 
-import Control.Monad.Logger (runNoLoggingT, runStdoutLoggingT)
-import Data.Text.Encoding (encodeUtf8)
-import Database.Persist.Postgresql (ConnectionPool, createPostgresqlPool, runMigrationSilent, runSqlPool)
 import Model (migrateAll)
 import Settings (Settings (..))
+
+import Control.Monad.Logger (runNoLoggingT, runStdoutLoggingT)
+import Data.Text.Encoding (encodeUtf8)
+import Database.Persist.Postgresql (
+    ConnectionPool,
+    createPostgresqlPool,
+    runMigrationSilent,
+    runSqlPool,
+ )
 
 -- | Create a database connection pool.
 createPool :: Settings -> IO ConnectionPool
@@ -16,9 +22,11 @@ createPool settings =
         then mkPool runStdoutLoggingT
         else mkPool runNoLoggingT
   where
-    dbUrl = encodeUtf8 $ settingsDatabaseUrl settings
-    poolSize = settingsPoolSize settings
-    mkPool loggingT = loggingT $ createPostgresqlPool dbUrl poolSize
+    mkPool loggingT =
+        loggingT $
+            createPostgresqlPool
+                (encodeUtf8 $ settingsDatabaseUrl settings)
+                (settingsPoolSize settings)
 
 -- | Run SQL migrations on a database.
 runMigrations :: ConnectionPool -> IO ()
