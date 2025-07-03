@@ -1,20 +1,34 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Page (readPageParams) where
+module Page (
+    pageJson,
+    readPageParams,
+) where
 
 import Data.Text (Text, unpack)
 import Foundation
 import Text.Read (readMaybe)
 import Yesod.Core
 
+-- | Create a page JSON object.
+pageJson :: (ToJSON a) => Int -> Int -> [a] -> Value
+pageJson pageSize pageNumber pageData =
+    object
+        [ "pageSize" .= pageSize
+        , "pageNumber" .= pageNumber
+        , "nextPageNumber" .= (pageNumber + 1)
+        , "pageData" .= pageData
+        ]
+
 -- | Read SQL limit and offset from request query params.
-readPageParams :: Handler (Int, Int)
+readPageParams :: Handler (Int, Int, Int)
 readPageParams = do
     maybePageSize <- lookupGetParam "pageSize"
     maybePageNumber <- lookupGetParam "pageNumber"
     let pageSize = parsePageSize maybePageSize
         pageNumber = parsePageNumber maybePageNumber
-    return (pageSize, pageSize * (pageNumber - 1))
+        offset = pageSize * (pageNumber - 1)
+    return (pageSize, pageNumber, offset)
 
 -- Parse page size and clamp it within a set range.
 parsePageSize :: Maybe Text -> Int

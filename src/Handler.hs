@@ -8,7 +8,7 @@ module Handler where
 import Dto
 import Foundation
 import Model
-import Page (readPageParams)
+import Page (pageJson, readPageParams)
 import qualified Query
 
 import Control.Monad (when)
@@ -20,9 +20,10 @@ import Yesod.Persist.Core (get404, runDB)
 -- | List a page of stories.
 getStoriesR :: Handler Value
 getStoriesR = do
-    (limit, offset) <- readPageParams
-    stories <- runDB $ selectList [] [LimitTo limit, OffsetBy offset, Asc StoryId]
-    returnJson stories
+    (pageSize, pageNumber, offset) <- readPageParams
+    stories <- runDB $ selectList [] [LimitTo pageSize, OffsetBy offset, Asc StoryId]
+    returnJson $
+        pageJson pageSize pageNumber stories
 
 -- | Get a story.
 getStoryR :: StoryId -> Handler Value
@@ -58,12 +59,13 @@ putStoryR storyId = do
 -- | List a page of tasks for a story.
 getTasksR :: StoryId -> Handler Value
 getTasksR storyId = do
-    (limit, offset) <- readPageParams
+    (pageSize, pageNumber, offset) <- readPageParams
     tasks <- runDB $ do
         selectList
             [TaskStoryId ==. storyId]
-            [LimitTo limit, OffsetBy offset, Asc TaskId]
-    returnJson tasks
+            [LimitTo pageSize, OffsetBy offset, Asc TaskId]
+    returnJson $
+        pageJson pageSize pageNumber tasks
 
 -- | Get a task.
 getTaskR :: StoryId -> TaskId -> Handler Value
@@ -108,16 +110,17 @@ putTaskR storyId taskId = do
 -- | List a page of milestones.
 getMilestonesR :: Handler Value
 getMilestonesR = do
-    (limit, offset) <- readPageParams
+    (pageSize, pageNumber, offset) <- readPageParams
     milestones <- runDB $ do
         selectList
             []
-            [ LimitTo limit
+            [ LimitTo pageSize
             , OffsetBy offset
             , Asc MilestoneStartDate
             , Desc MilestoneCompleteDate
             ]
-    returnJson milestones
+    returnJson $
+        pageJson pageSize pageNumber milestones
 
 -- | Get a milestone.
 getMilestoneR :: MilestoneId -> Handler Value
