@@ -6,8 +6,8 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Application (
-    appMain,
     makeApp,
+    runApp,
 ) where
 
 import qualified Database as DB
@@ -25,8 +25,8 @@ import Yesod.Core
 mkYesodDispatch "App" resourcesApp
 
 -- | Create and run the gsd-server application.
-appMain :: FilePath -> IO ()
-appMain filePath = do
+runApp :: FilePath -> IO ()
+runApp filePath = do
     settings <- loadSettings filePath
     app <- makeApp settings
     waiApp <- makeWaiApplication app

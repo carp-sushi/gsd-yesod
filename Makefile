@@ -10,6 +10,7 @@ format:
 		src/Dto.hs \
 		src/Foundation.hs \
 		src/Handler.hs \
+		src/Lib.hs \
 		src/Logger.hs \
 		src/Model.hs \
 		src/Page.hs \
