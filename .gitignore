@@ -21,3 +21,4 @@ cabal.sandbox.config
 \#*
 gsd-yesod.cabal
 .envrc
+.cursor
