@@ -8,7 +8,7 @@ module Handler where
 import Dto
 import Foundation
 import Model
-import Page (pageJson, readPageParams)
+import Page
 import qualified Query
 
 import Control.Monad (when)
@@ -23,7 +23,7 @@ getStoriesR = do
     (pageSize, pageNumber, offset) <- readPageParams
     stories <- runDB $ selectList [] [LimitTo pageSize, OffsetBy offset, Asc StoryId]
     returnJson $
-        pageJson pageSize pageNumber stories
+        pageDto pageSize pageNumber stories
 
 -- | Get a story.
 getStoryR :: StoryId -> Handler Value
@@ -65,7 +65,7 @@ getTasksR storyId = do
             [TaskStoryId ==. storyId]
             [LimitTo pageSize, OffsetBy offset, Asc TaskId]
     returnJson $
-        pageJson pageSize pageNumber tasks
+        pageDto pageSize pageNumber tasks
 
 -- | Get a task.
 getTaskR :: StoryId -> TaskId -> Handler Value
@@ -120,7 +120,7 @@ getMilestonesR = do
             , Desc MilestoneCompleteDate
             ]
     returnJson $
-        pageJson pageSize pageNumber milestones
+        pageDto pageSize pageNumber milestones
 
 -- | Get a milestone.
 getMilestoneR :: MilestoneId -> Handler Value
@@ -184,15 +184,17 @@ postMilestoneStoriesR milestoneId = do
 
 -- | List all stories linked to a milestone.
 getMilestoneStoriesR :: MilestoneId -> Handler Value
-getMilestoneStoriesR milestoneId =
-    runDB (Query.selectMilestoneStories milestoneId)
-        >>= returnJson
+getMilestoneStoriesR milestoneId = do
+    limit <- readLimitParam
+    results <- runDB $ Query.selectMilestoneStories milestoneId (fromIntegral limit)
+    returnJson results
 
 -- | List all milestones linked to a story.
 getStoryMilestonesR :: StoryId -> Handler Value
-getStoryMilestonesR storyId =
-    runDB (Query.selectStoryMilestones storyId)
-        >>= returnJson
+getStoryMilestonesR storyId = do
+    limit <- readLimitParam
+    results <- runDB $ Query.selectStoryMilestones storyId (fromIntegral limit)
+    returnJson results
 
 -- | Delete a link between a milestone and a story.
 deleteMilestoneStoryR :: MilestoneId -> StoryId -> Handler ()

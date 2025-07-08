@@ -8,6 +8,7 @@ module Query(
 ) where
 
 import Control.Monad.IO.Class (MonadIO)
+import Data.Int (Int64)
 import Database.Esqueleto.Experimental
 import Model
 
@@ -29,8 +30,9 @@ findMilestoneStory milestoneId storyId =
 selectStoryMilestones ::
     (MonadIO m) =>
     StoryId ->
+    Int64 ->
     SqlPersistT m [Entity Milestone]
-selectStoryMilestones storyId =
+selectStoryMilestones storyId maxRows =
     select $ do
         (m :& ms) <- from $
             table @Milestone
@@ -41,14 +43,17 @@ selectStoryMilestones storyId =
             ms ^. MilestoneStoryStoryId ==. val storyId
         orderBy
             [desc $ m ^. MilestoneStartDate]
+        limit
+            maxRows
         return m
 
 -- | Select stories linked to a milestone.
 selectMilestoneStories ::
     (MonadIO m) =>
     MilestoneId ->
+    Int64 ->
     SqlPersistT m [Entity Story]
-selectMilestoneStories milestoneId =
+selectMilestoneStories milestoneId maxRows =
     select $ do
         (s :& ms) <- from $
             table @Story
@@ -59,4 +64,6 @@ selectMilestoneStories milestoneId =
             ms ^. MilestoneStoryMilestoneId ==. val milestoneId
         orderBy
             [asc $ s ^. StoryId]
+        limit
+            maxRows
         return s

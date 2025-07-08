@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Dto (
+    pageDto,
     storyDto,
     taskDto,
     milestoneDto,
@@ -35,4 +36,14 @@ milestoneDto storyId (Milestone name startDate completeDate) =
         , "name" .= name
         , "startDate" .= startDate
         , "completeDate" .= completeDate
+        ]
+
+-- | Create a page JSON object.
+pageDto :: (ToJSON a) => Int -> Int -> [a] -> Value
+pageDto pageSize pageNumber pageData =
+    object
+        [ "pageSize" .= pageSize
+        , "pageNumber" .= pageNumber
+        , "nextPageNumber" .= (pageNumber + 1)
+        , "pageData" .= pageData
         ]
