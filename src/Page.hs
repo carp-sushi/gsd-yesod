@@ -10,15 +10,11 @@ import Foundation
 import Text.Read (readMaybe)
 import Yesod.Core
 
--- | Read a limit query param as an integer.
+-- | Read an optional limit query param as an integer. If not provided, default to 100.
 readLimitParam :: Handler Int
 readLimitParam = do
-    limitParam <- lookupGetParam "limit"
-    return $ parseLimit limitParam
-
--- Parse limit param clamp it within a range.
-parseLimit :: Maybe Text -> Int
-parseLimit = clamp . parseInt
+    param <- lookupGetParam "limit"
+    return $ (clamp . parseInt) param
   where
     clamp Nothing = 100
     clamp (Just n) = max 1 (min n 1000)
