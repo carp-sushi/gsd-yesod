@@ -18,7 +18,7 @@ spec = withApp $ do
 
     describe "get story" $ do
         it "returns 200" $ do
-            storyId <- runDB $ insert $ Story "Test Story"
+            storyId <- runDB $ insert $ Story "Test Story" 1
             request $ do
                 setMethod "GET"
                 setUrl $ StoryR storyId
@@ -27,7 +27,7 @@ spec = withApp $ do
 
     describe "create story" $ do
         it "returns 200 when JSON body is valid" $ do
-            let body = object [ "name" .= ("Test Story" :: Text) ]
+            let body = object [ "name" .= ("Test Story" :: Text), "points" .= (1 :: Int) ]
             request $ do
                 setMethod "POST"
                 setUrl StoriesR
@@ -46,8 +46,8 @@ spec = withApp $ do
 
     describe "update story" $ do
         it "returns 200 when JSON body is valid" $ do
-            storyId <- runDB $ insert $ Story "Test Story"
-            let body = object ["name" .= ("Updated Story" :: Text)]
+            storyId <- runDB $ insert $ Story "Test Story" 1
+            let body = object ["name" .= ("Updated Story" :: Text), "points" .= (2 :: Int) ]
             request $ do
                 setMethod "PUT"
                 setUrl $ StoryR storyId
@@ -56,7 +56,7 @@ spec = withApp $ do
             statusIs 200
 
         it "returns 400 when JSON body is invalid" $ do
-            storyId <- runDB $ insert $ Story "Test Story"
+            storyId <- runDB $ insert $ Story "Test Story" 1
             let body = object [ "foo" .= ("Test Story" :: Value) ]
             request $ do
                 setMethod "PUT"
@@ -67,7 +67,7 @@ spec = withApp $ do
 
     describe "delete story" $ do
         it "returns 200" $ do
-            storyId <- runDB $ insert $ Story "Test Story"
+            storyId <- runDB $ insert $ Story "Test Story" 1
             request $ do
                 setMethod "DELETE"
                 setUrl $ StoryR storyId

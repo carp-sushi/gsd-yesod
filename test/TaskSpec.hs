@@ -10,7 +10,7 @@ spec :: Spec
 spec = withApp $ do
     describe "list tasks" $ do
         it "returns 200" $ do
-            storyId <- runDB $ insert $ Story "Test Story"
+            storyId <- runDB $ insert $ Story "Test Story" 1
             request $ do
                 setMethod "GET"
                 setUrl $ TasksR storyId
@@ -20,7 +20,7 @@ spec = withApp $ do
     describe "get task" $ do
         it "returns 200" $ do
             (storyId, taskId) <- runDB $ do
-                sid <- insert $ Story "Test Story"
+                sid <- insert $ Story "Test Story" 1
                 tid <- insert $ Task sid "Test Task" Todo
                 return (sid, tid)
             request $ do
@@ -31,7 +31,7 @@ spec = withApp $ do
 
     describe "create task" $ do
         it "returns 200 when JSON body is valid" $ do
-            storyId <- runDB $ insert $ Story "Test Story"
+            storyId <- runDB $ insert $ Story "Test Story" 1
             let body = object
                     [ "name" .= ("Test Task" :: Text)
                     , "status" .= Todo
@@ -45,7 +45,7 @@ spec = withApp $ do
             statusIs 200
 
         it "returns 400 when JSON body is invalid" $ do
-            storyId <- runDB $ insert $ Story "Test Story"
+            storyId <- runDB $ insert $ Story "Test Story" 1
             let body = object [ "foo" .= ("Test Task" :: Value) ]
             request $ do
                 setMethod "POST"
@@ -57,7 +57,7 @@ spec = withApp $ do
     describe "update task" $ do
         it "returns 200 when JSON body is valid" $ do
             (storyId, taskId) <- runDB $ do
-                sid <- insert $ Story "Test Story"
+                sid <- insert $ Story "Test Story" 1
                 tid <- insert $ Task sid "Test Task" Todo
                 return (sid, tid)
             let body = object
@@ -74,7 +74,7 @@ spec = withApp $ do
 
         it "returns 400 when JSON body is invalid" $ do
             (storyId, taskId) <- runDB $ do
-                sid <- insert $ Story "Test Story"
+                sid <- insert $ Story "Test Story" 1
                 tid <- insert $ Task sid "Test Task" Todo
                 return (sid, tid)
             let body = object [ "foo" .= ("Test Task" :: Value) ]
@@ -88,7 +88,7 @@ spec = withApp $ do
     describe "delete task" $ do
         it "returns 200" $ do
             (storyId, taskId) <- runDB $ do
-                sid <- insert $ Story "Test Story"
+                sid <- insert $ Story "Test Story" 1
                 tid <- insert $ Task sid "Test Task" Todo
                 return (sid, tid)
             request $ do

@@ -12,10 +12,11 @@ import Model
 
 -- | Create a JSON data transfer object for a story.
 storyDto :: StoryId -> Story -> Value
-storyDto storyId (Story name) =
+storyDto storyId (Story name points) =
     object
         [ "id" .= storyId
         , "name" .= name
+        , "points" .= points
         ]
 
 -- | Create a JSON data transfer object for a task.

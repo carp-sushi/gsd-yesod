@@ -9,6 +9,7 @@ Milestone json sql=milestones
 
 Story json sql=stories
     name String
+    points Int
     deriving Eq Read Show
 
 Task json sql=tasks
