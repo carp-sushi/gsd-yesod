@@ -1,5 +1,5 @@
-databaseUrl = "host=$(DB_HOST) dbname=$(DB_NAME) user=$(DB_USER) password=$(DB_PASS) port=$(DB_PORT)"
-poolSize = 6
+databaseUrl = "host=$(DEV_DB_HOST) dbname=$(DEV_DB_NAME) user=$(DEV_DB_USER) password=$(DEV_DB_PASS) port=$(DEV_DB_PORT)"
+poolSize = 5
 runMigrations = true
-httpPort = "$(HTTP_PORT)"
+httpPort = "$(DEV_HTTP_PORT)"
 verboseLogging = true
