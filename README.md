@@ -1,6 +1,6 @@
 # gsd-yesod
 
-An example http/json web-service written in Haskell using Yesod + Persistent.
+A learning exercise: create a simple http/json web-service using Yesod, Persistent, and Esqueleto.
 
 Domain Objects:
 
