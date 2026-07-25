@@ -6,6 +6,7 @@ import TestSupport
 import Data.Aeson
 import Data.Text (Text)
 import Data.Time.Clock (addUTCTime, getCurrentTime)
+import Database.Persist.Sql (toSqlKey)
 
 spec :: Spec
 spec = withApp $ do
@@ -76,10 +77,15 @@ spec = withApp $ do
             statusIs 400
 
     describe "delete milestone" $ do
-        it "returns 200" $ do
+        it "returns 200 when a milestone is deleted" $ do
             milestoneId <- runDB $ insert $
                 Milestone "Test Milestone" Nothing Nothing
             request $ do
                 setMethod "DELETE"
                 setUrl $ MilestoneR milestoneId
             statusIs 200
+        it "returns 404 when a milestone does not exist" $ do
+            request $ do
+                setMethod "DELETE"
+                setUrl $ MilestoneR (toSqlKey 0)
+            statusIs 404

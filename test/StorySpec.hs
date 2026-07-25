@@ -5,6 +5,7 @@ module StorySpec (spec) where
 import TestSupport
 import Data.Aeson
 import Data.Text (Text)
+import Database.Persist.Sql (toSqlKey)
 
 spec :: Spec
 spec = withApp $ do
@@ -66,9 +67,14 @@ spec = withApp $ do
             statusIs 400
 
     describe "delete story" $ do
-        it "returns 200" $ do
+        it "returns 200 when a story is deleted" $ do
             storyId <- runDB $ insert $ Story "Test Story" 1
             request $ do
                 setMethod "DELETE"
                 setUrl $ StoryR storyId
             statusIs 200
+        it "returns 404 when a story does not exist" $ do
+            request $ do
+                setMethod "DELETE"
+                setUrl $ StoryR (toSqlKey 0)
+            statusIs 404

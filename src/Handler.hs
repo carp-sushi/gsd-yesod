@@ -206,7 +206,7 @@ getStoryMilestonesR storyId = do
 deleteMilestoneStoryR :: MilestoneId -> StoryId -> Handler ()
 deleteMilestoneStoryR milestoneId storyId = do
     maybeLink <- runDB $ Query.findMilestoneStory milestoneId storyId
-    when (isNothing maybeLink) $ invalidArgs ["Milestone not linked to story"]
+    when (isNothing maybeLink) $ notFound -- Milestone not linked to story
     runDB $
         deleteWhere
             [ MilestoneStoryMilestoneId ==. milestoneId

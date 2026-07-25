@@ -5,6 +5,7 @@ module TaskSpec (spec) where
 import TestSupport
 import Data.Aeson
 import Data.Text (Text)
+import Database.Persist.Sql (toSqlKey)
 
 spec :: Spec
 spec = withApp $ do
@@ -86,7 +87,7 @@ spec = withApp $ do
             statusIs 400
 
     describe "delete task" $ do
-        it "returns 200" $ do
+        it "returns 200 when a task is deleted" $ do
             (storyId, taskId) <- runDB $ do
                 sid <- insert $ Story "Test Story" 1
                 tid <- insert $ Task sid "Test Task" Todo
@@ -95,3 +96,9 @@ spec = withApp $ do
                 setMethod "DELETE"
                 setUrl $ TaskR storyId taskId
             statusIs 200
+        it "returns 404 when a task does not exist" $ do
+            storyId <- runDB $ do insert $ Story "Test Story" 1
+            request $ do
+                setMethod "DELETE"
+                setUrl $ TaskR storyId (toSqlKey 0)
+            statusIs 404
