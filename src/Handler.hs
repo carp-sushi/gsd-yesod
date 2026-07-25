@@ -185,16 +185,22 @@ postMilestoneStoriesR milestoneId = do
 -- | List all stories linked to a milestone.
 getMilestoneStoriesR :: MilestoneId -> Handler Value
 getMilestoneStoriesR milestoneId = do
-    limit <- readLimitParam
-    results <- runDB $ Query.selectMilestoneStories milestoneId (fromIntegral limit)
-    returnJson results
+    (pageSize, pageNumber, pageOffset) <- readPageParams
+    let limit = fromIntegral pageSize
+        offset = fromIntegral pageOffset
+    stories <- runDB $ Query.selectMilestoneStories milestoneId limit offset
+    returnJson $
+        pageDto pageSize pageNumber stories
 
 -- | List all milestones linked to a story.
 getStoryMilestonesR :: StoryId -> Handler Value
 getStoryMilestonesR storyId = do
-    limit <- readLimitParam
-    results <- runDB $ Query.selectStoryMilestones storyId (fromIntegral limit)
-    returnJson results
+    (pageSize, pageNumber, pageOffset) <- readPageParams
+    let limit = fromIntegral pageSize
+        offset = fromIntegral pageOffset
+    milestones <- runDB $ Query.selectStoryMilestones storyId limit offset
+    returnJson $
+        pageDto pageSize pageNumber milestones
 
 -- | Delete a link between a milestone and a story.
 deleteMilestoneStoryR :: MilestoneId -> StoryId -> Handler ()

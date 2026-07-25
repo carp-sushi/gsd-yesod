@@ -1,23 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Page (
-    readLimitParam,
-    readPageParams,
-) where
+module Page (readPageParams) where
 
 import Data.Text (Text, unpack)
 import Foundation
 import Text.Read (readMaybe)
 import Yesod.Core
-
--- | Read an optional limit query param as an integer. If not provided, default to 100.
-readLimitParam :: Handler Int
-readLimitParam = do
-    param <- lookupGetParam "limit"
-    pure $ (clamp . parseInt) param
-  where
-    clamp Nothing = 100
-    clamp (Just n) = max 1 (min n 1000)
 
 -- | Read page parameters from request query params.
 readPageParams :: Handler (Int, Int, Int)

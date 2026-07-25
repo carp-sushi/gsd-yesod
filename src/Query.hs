@@ -31,8 +31,9 @@ selectStoryMilestones ::
     (MonadIO m) =>
     StoryId ->
     Int64 ->
+    Int64 ->
     SqlPersistT m [Entity Milestone]
-selectStoryMilestones storyId maxRows =
+selectStoryMilestones storyId limit_ offset_ =
     select $ do
         (m :& ms) <- from $
             table @Milestone
@@ -44,7 +45,9 @@ selectStoryMilestones storyId maxRows =
         orderBy
             [desc $ m ^. MilestoneStartDate]
         limit
-            maxRows
+            limit_
+        offset
+            offset_
         pure m
 
 -- | Select stories linked to a milestone.
@@ -52,8 +55,9 @@ selectMilestoneStories ::
     (MonadIO m) =>
     MilestoneId ->
     Int64 ->
+    Int64 ->
     SqlPersistT m [Entity Story]
-selectMilestoneStories milestoneId maxRows =
+selectMilestoneStories milestoneId limit_ offset_ =
     select $ do
         (s :& ms) <- from $
             table @Story
@@ -65,5 +69,7 @@ selectMilestoneStories milestoneId maxRows =
         orderBy
             [asc $ s ^. StoryId]
         limit
-            maxRows
+            limit_
+        offset
+            offset_
         pure s
