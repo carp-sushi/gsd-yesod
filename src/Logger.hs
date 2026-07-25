@@ -31,4 +31,4 @@ makeAppLogger :: IO YCT.Logger
 makeAppLogger = do
     setter <- newStdoutLoggerSet defaultBufSize
     (getter, _) <- clockDateCacher
-    return $ YCT.Logger setter getter
+    pure $ YCT.Logger setter getter

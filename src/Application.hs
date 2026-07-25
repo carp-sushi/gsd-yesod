@@ -40,18 +40,19 @@ makeApp appSettings = do
     appLogger <- Logger.makeAppLogger
     when (settingsRunMigrations appSettings) $
         DB.runMigrations appConnectionPool
-    return App{..}
+    pure App{..}
 
 -- Create a WAI Application and apply request logger middleware.
 makeWaiApplication :: App -> IO Application
 makeWaiApplication app = do
     waiApp <- toWaiAppPlain app
     requestLoggerMiddleware <- Logger.makeRequestLogger app
-    return $ requestLoggerMiddleware waiApp
+    pure $ requestLoggerMiddleware waiApp
 
 -- Create warp settings for App.
 warpSettings :: App -> Warp.Settings
 warpSettings app =
     Warp.setPort (settingsReadHttpPort $ appSettings app) $
-        Warp.setHost "!4" $ -- means HostIPv4Only - any IPv4 hostname
+        Warp.setHost
+            "!4" -- means HostIPv4Only - any IPv4 hostname
             Warp.defaultSettings

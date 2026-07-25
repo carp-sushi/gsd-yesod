@@ -24,7 +24,7 @@ findMilestoneStory milestoneId storyId =
         where_ $
             ms ^. MilestoneStoryMilestoneId ==. val milestoneId &&.
             ms ^. MilestoneStoryStoryId ==. val storyId
-        return ms
+        pure ms
 
 -- | Select milestones linked to a story.
 selectStoryMilestones ::
@@ -45,7 +45,7 @@ selectStoryMilestones storyId maxRows =
             [desc $ m ^. MilestoneStartDate]
         limit
             maxRows
-        return m
+        pure m
 
 -- | Select stories linked to a milestone.
 selectMilestoneStories ::
@@ -66,4 +66,4 @@ selectMilestoneStories milestoneId maxRows =
             [asc $ s ^. StoryId]
         limit
             maxRows
-        return s
+        pure s

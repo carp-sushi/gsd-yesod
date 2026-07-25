@@ -173,7 +173,7 @@ postMilestoneStoriesR milestoneId = do
         case maybeLink of
             Just link -> do
                 $logWarn "Milestone story link already exists"
-                return link
+                pure link
             Nothing -> do
                 _ <- get404 milestoneId
                 _ <- get404 storyId

@@ -22,7 +22,7 @@ spec = withApp $ do
             (storyId, taskId) <- runDB $ do
                 sid <- insert $ Story "Test Story" 1
                 tid <- insert $ Task sid "Test Task" Todo
-                return (sid, tid)
+                pure (sid, tid)
             request $ do
                 setMethod "GET"
                 setUrl $ TaskR storyId taskId
@@ -59,7 +59,7 @@ spec = withApp $ do
             (storyId, taskId) <- runDB $ do
                 sid <- insert $ Story "Test Story" 1
                 tid <- insert $ Task sid "Test Task" Todo
-                return (sid, tid)
+                pure (sid, tid)
             let body = object
                     [ "storyId" .= storyId
                     , "name" .= ("Updated Task" :: Text)
@@ -76,7 +76,7 @@ spec = withApp $ do
             (storyId, taskId) <- runDB $ do
                 sid <- insert $ Story "Test Story" 1
                 tid <- insert $ Task sid "Test Task" Todo
-                return (sid, tid)
+                pure (sid, tid)
             let body = object [ "foo" .= ("Test Task" :: Value) ]
             request $ do
                 setMethod "PUT"
@@ -90,7 +90,7 @@ spec = withApp $ do
             (storyId, taskId) <- runDB $ do
                 sid <- insert $ Story "Test Story" 1
                 tid <- insert $ Task sid "Test Task" Todo
-                return (sid, tid)
+                pure (sid, tid)
             request $ do
                 setMethod "DELETE"
                 setUrl $ TaskR storyId taskId

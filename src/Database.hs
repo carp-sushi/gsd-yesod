@@ -33,4 +33,4 @@ runMigrations :: ConnectionPool -> IO ()
 runMigrations pool =
     runNoLoggingT $ do
         _ <- runSqlPool (runMigrationSilent migrateAll) pool
-        return ()
+        pure ()

@@ -29,7 +29,7 @@ loadSettings filePath = do
     settingsHttpPort <- require cfg "httpPort"
     settingsRunMigrations <- require cfg "runMigrations"
     settingsVerboseLogging <- require cfg "verboseLogging"
-    return Settings{..}
+    pure Settings{..}
 
 -- | Read HTTP port from settings as an Int.
 settingsReadHttpPort :: Settings -> Int

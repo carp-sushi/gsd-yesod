@@ -44,7 +44,7 @@ pageDto :: (ToJSON a) => Int -> Int -> [a] -> Value
 pageDto pageSize pageNumber pageData =
     object
         [ "pageSize" .= pageSize
-        , "previousPageNumber" .= (max 1 (pageNumber - 1))
+        , "previousPageNumber" .= max 1 (pageNumber - 1)
         , "pageNumber" .= pageNumber
         , "nextPageNumber" .= (pageNumber + 1)
         , "pageData" .= pageData

@@ -28,14 +28,14 @@ mkYesodData "App" $(parseRoutesFile "config/routes")
 -- Customize the Yesod application.
 instance Yesod App where
     makeSessionBackend :: App -> IO (Maybe SessionBackend)
-    makeSessionBackend _ = return Nothing
+    makeSessionBackend _ = pure Nothing
 
     makeLogger :: App -> IO Logger
-    makeLogger = return . appLogger
+    makeLogger = pure . appLogger
 
     shouldLogIO :: App -> LogSource -> LogLevel -> IO Bool
     shouldLogIO app _source level =
-        return $
+        pure $
             settingsVerboseLogging (appSettings app)
                 || level == LevelWarn
                 || level == LevelError

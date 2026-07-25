@@ -14,7 +14,7 @@ import Yesod.Core
 readLimitParam :: Handler Int
 readLimitParam = do
     param <- lookupGetParam "limit"
-    return $ (clamp . parseInt) param
+    pure $ (clamp . parseInt) param
   where
     clamp Nothing = 100
     clamp (Just n) = max 1 (min n 1000)
@@ -27,7 +27,7 @@ readPageParams = do
     let pageSize = parsePageSize psParam
         pageNumber = parsePageNumber pnParam
         offset = pageSize * (pageNumber - 1)
-    return (pageSize, pageNumber, offset)
+    pure (pageSize, pageNumber, offset)
 
 -- Parse page size and clamp it within a set range.
 parsePageSize :: Maybe Text -> Int

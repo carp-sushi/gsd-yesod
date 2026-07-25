@@ -35,7 +35,7 @@ withApp = before $ do
     settings <- loadSettings "config/test/settings"
     app <- makeApp settings
     truncateTables app
-    return (app, id) -- id disables request logging for tests
+    pure (app, id) -- id disables request logging for tests
 
 truncateTables :: App -> IO ()
 truncateTables app = runDBWithApp app $ do
@@ -53,4 +53,4 @@ getTables = do
         WHERE table_schema = 'public'
         AND table_type = 'BASE TABLE';
     |] []
-    return $ fmap unSingle tables
+    pure $ fmap unSingle tables

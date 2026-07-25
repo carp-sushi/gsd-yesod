@@ -14,7 +14,7 @@ spec = withApp $ do
             (milestoneId, storyId) <- runDB $ do
                 mid <- insert $ Milestone "Test Milestone" (Just startDate) Nothing
                 sid <- insert $ Story "Test Story" 1
-                return (mid, sid)
+                pure (mid, sid)
             let body = object
                     [ "milestoneId" .= milestoneId
                     , "storyId" .= storyId
@@ -32,7 +32,7 @@ spec = withApp $ do
                 mid <- insert $ Milestone "Test Milestone" Nothing Nothing
                 sid <- insert $ Story "Test Story" 1
                 _ <- insert $ MilestoneStory mid sid
-                return (mid, sid)
+                pure (mid, sid)
             request $ do
                 setMethod "DELETE"
                 setUrl $ MilestoneStoryR milestoneId storyId
