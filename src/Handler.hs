@@ -51,10 +51,10 @@ postStoriesR = do
 putStoryR :: StoryId -> Handler Value
 putStoryR storyId = do
     story <- requireCheckJsonBody :: Handler Story
-    runDB $ do
-        _ <- get404 storyId
-        update storyId [StoryName =. storyName story]
-    returnJson $ storyDto storyId story
+    updated <- runDB $ do
+        update storyId [StoryName =. storyName story, StoryPoints =. storyPoints story]
+        get404 storyId
+    returnJson $ storyDto storyId updated
 
 -- | List a page of tasks for a story.
 getTasksR :: StoryId -> Handler Value
@@ -79,9 +79,7 @@ deleteTaskR :: StoryId -> TaskId -> Handler ()
 deleteTaskR storyId taskId = do
     task <- runDB $ get404 taskId
     validateTaskStoryId storyId task
-    runDB $ do
-        _ <- get404 taskId
-        delete taskId
+    runDB $ delete taskId
 
 -- | Create a task.
 postTasksR :: StoryId -> Handler Value
@@ -98,14 +96,11 @@ putTaskR :: StoryId -> TaskId -> Handler Value
 putTaskR storyId taskId = do
     task <- requireCheckJsonBody :: Handler Task
     validateTaskStoryId storyId task
-    runDB $ do
-        _ <- get404 taskId
-        update
-            taskId
-            [ TaskName =. taskName task
-            , TaskStatus =. taskStatus task
-            ]
-    returnJson $ taskDto taskId task
+    updated <- runDB $ do
+        _ <- get404 storyId
+        update taskId [TaskName =. taskName task, TaskStatus =. taskStatus task, TaskStoryId =. storyId]
+        get404 taskId
+    returnJson $ taskDto taskId updated
 
 -- | List a page of milestones.
 getMilestonesR :: Handler Value
@@ -147,37 +142,37 @@ deleteMilestoneR milestoneId = do
 putMilestoneR :: MilestoneId -> Handler Value
 putMilestoneR milestoneId = do
     milestone <- requireCheckJsonBody :: Handler Milestone
-    runDB $ do
-        _ <- get404 milestoneId
+    updated <- runDB $ do
         update
             milestoneId
             [ MilestoneName =. milestoneName milestone
             , MilestoneStartDate =. milestoneStartDate milestone
             , MilestoneCompleteDate =. milestoneCompleteDate milestone
             ]
+        get404 milestoneId
     returnJson $
-        milestoneDto milestoneId milestone
+        milestoneDto milestoneId updated
 
 -- | Link a story to a milestone.
 postMilestoneStoriesR :: MilestoneId -> Handler Value
 postMilestoneStoriesR milestoneId = do
-    req <- requireCheckJsonBody :: Handler MilestoneStory
+    milestoneStory <- requireCheckJsonBody :: Handler MilestoneStory
 
-    when (milestoneId /= milestoneStoryMilestoneId req) $
+    when (milestoneId /= milestoneStoryMilestoneId milestoneStory) $
         invalidArgs
             ["MilestoneId mismatch: URI does not match request body"]
 
     entity <- runDB $ do
-        let storyId = milestoneStoryStoryId req
-        maybeLink <- Query.findMilestoneStory milestoneId storyId
-        case maybeLink of
-            Just link -> do
+        let storyId = milestoneStoryStoryId milestoneStory
+        maybeEntity <- Query.findMilestoneStory milestoneId storyId
+        case maybeEntity of
+            Just entity -> do
                 $logWarn "Milestone story link already exists"
-                pure link
+                pure entity
             Nothing -> do
                 _ <- get404 milestoneId
                 _ <- get404 storyId
-                insertEntity req
+                insertEntity milestoneStory
 
     let (Entity _ ms) = entity
     returnJson ms
@@ -188,7 +183,9 @@ getMilestoneStoriesR milestoneId = do
     (pageSize, pageNumber, pageOffset) <- readPageParams
     let limit = fromIntegral pageSize
         offset = fromIntegral pageOffset
-    stories <- runDB $ Query.selectMilestoneStories milestoneId limit offset
+    stories <- runDB $ do
+        _ <- get404 milestoneId
+        Query.selectMilestoneStories milestoneId limit offset
     returnJson $
         pageDto pageSize pageNumber stories
 
@@ -198,15 +195,17 @@ getStoryMilestonesR storyId = do
     (pageSize, pageNumber, pageOffset) <- readPageParams
     let limit = fromIntegral pageSize
         offset = fromIntegral pageOffset
-    milestones <- runDB $ Query.selectStoryMilestones storyId limit offset
+    milestones <- runDB $ do
+        _ <- get404 storyId
+        Query.selectStoryMilestones storyId limit offset
     returnJson $
         pageDto pageSize pageNumber milestones
 
 -- | Delete a link between a milestone and a story.
 deleteMilestoneStoryR :: MilestoneId -> StoryId -> Handler ()
 deleteMilestoneStoryR milestoneId storyId = do
-    maybeLink <- runDB $ Query.findMilestoneStory milestoneId storyId
-    when (isNothing maybeLink) $ notFound -- Milestone not linked to story
+    maybeEntity <- runDB $ Query.findMilestoneStory milestoneId storyId
+    when (isNothing maybeEntity) $ notFound -- Milestone not linked to story
     runDB $
         deleteWhere
             [ MilestoneStoryMilestoneId ==. milestoneId

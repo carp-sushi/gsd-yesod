@@ -31,9 +31,9 @@ taskDto taskId (Task storyId name status) =
 
 -- | Create a JSON data transfer object for a milestone.
 milestoneDto :: MilestoneId -> Milestone -> Value
-milestoneDto storyId (Milestone name startDate completeDate) =
+milestoneDto milestoneId (Milestone name startDate completeDate) =
     object
-        [ "id" .= storyId
+        [ "id" .= milestoneId
         , "name" .= name
         , "startDate" .= startDate
         , "completeDate" .= completeDate
