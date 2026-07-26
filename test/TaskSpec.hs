@@ -19,7 +19,7 @@ spec = withApp $ do
             statusIs 200
 
     describe "get task" $ do
-        it "returns 200" $ do
+        it "returns 200 when a task exists" $ do
             (storyId, taskId) <- runDB $ do
                 sid <- insert $ Story "Test Story" 1
                 tid <- insert $ Task sid "Test Task" Todo
@@ -29,6 +29,13 @@ spec = withApp $ do
                 setUrl $ TaskR storyId taskId
                 addRequestHeader ("Accept", "application/json")
             statusIs 200
+        it "returns 404 when a task does not exist" $ do
+            storyId <- runDB $ insert $ Story "Test Story" 1
+            request $ do
+                setMethod "GET"
+                setUrl $ TaskR storyId (toSqlKey 0)
+                addRequestHeader ("Accept", "application/json")
+            statusIs 404
 
     describe "create task" $ do
         it "returns 200 when JSON body is valid" $ do

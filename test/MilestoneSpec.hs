@@ -19,7 +19,7 @@ spec = withApp $ do
             statusIs 200
 
     describe "get milestone" $ do
-        it "returns 200" $ do
+        it "returns 200 when a milestone exists" $ do
             milestoneId <- runDB $ insert $
                 Milestone "Test Milestone" Nothing Nothing
             request $ do
@@ -27,6 +27,12 @@ spec = withApp $ do
                 setUrl $ MilestoneR milestoneId
                 addRequestHeader ("Accept", "application/json")
             statusIs 200
+        it "returns 404 when a milestone does not exist" $ do
+            request $ do
+                setMethod "GET"
+                setUrl $ MilestoneR (toSqlKey 0)
+                addRequestHeader ("Accept", "application/json")
+            statusIs 404
 
     describe "create milestone" $ do
         it "returns 200 when JSON body is valid" $ do

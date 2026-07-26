@@ -18,13 +18,19 @@ spec = withApp $ do
             statusIs 200
 
     describe "get story" $ do
-        it "returns 200" $ do
+        it "returns 200 when a story exists" $ do
             storyId <- runDB $ insert $ Story "Test Story" 1
             request $ do
                 setMethod "GET"
                 setUrl $ StoryR storyId
                 addRequestHeader ("Accept", "application/json")
             statusIs 200
+        it "returns 404 when a story does not exist" $ do
+            request $ do
+                setMethod "GET"
+                setUrl $ StoryR (toSqlKey 0)
+                addRequestHeader ("Accept", "application/json")
+            statusIs 404
 
     describe "create story" $ do
         it "returns 200 when JSON body is valid" $ do

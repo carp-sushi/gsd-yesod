@@ -14,8 +14,8 @@ readPageParams = do
     pnParam <- lookupGetParam "pageNumber"
     let pageSize = parsePageSize psParam
         pageNumber = parsePageNumber pnParam
-        offset = pageSize * (pageNumber - 1)
-    pure (pageSize, pageNumber, offset)
+        pageOffset = pageSize * (pageNumber - 1)
+    pure (pageSize, pageNumber, pageOffset)
 
 -- Parse page size and clamp it within a set range.
 parsePageSize :: Maybe Text -> Int

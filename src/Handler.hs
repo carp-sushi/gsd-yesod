@@ -20,8 +20,8 @@ import Yesod.Persist.Core (get404, runDB)
 -- | List a page of stories.
 getStoriesR :: Handler Value
 getStoriesR = do
-    (pageSize, pageNumber, offset) <- readPageParams
-    stories <- runDB $ selectList [] [LimitTo pageSize, OffsetBy offset, Asc StoryId]
+    (pageSize, pageNumber, pageOffset) <- readPageParams
+    stories <- runDB $ selectList [] [LimitTo pageSize, OffsetBy pageOffset, Asc StoryId]
     returnJson $
         pageDto pageSize pageNumber stories
 
@@ -59,11 +59,11 @@ putStoryR storyId = do
 -- | List a page of tasks for a story.
 getTasksR :: StoryId -> Handler Value
 getTasksR storyId = do
-    (pageSize, pageNumber, offset) <- readPageParams
+    (pageSize, pageNumber, pageOffset) <- readPageParams
     tasks <- runDB $ do
         selectList
             [TaskStoryId ==. storyId]
-            [LimitTo pageSize, OffsetBy offset, Asc TaskId]
+            [LimitTo pageSize, OffsetBy pageOffset, Asc TaskId]
     returnJson $
         pageDto pageSize pageNumber tasks
 
@@ -110,12 +110,12 @@ putTaskR storyId taskId = do
 -- | List a page of milestones.
 getMilestonesR :: Handler Value
 getMilestonesR = do
-    (pageSize, pageNumber, offset) <- readPageParams
+    (pageSize, pageNumber, pageOffset) <- readPageParams
     milestones <- runDB $ do
         selectList
             []
             [ LimitTo pageSize
-            , OffsetBy offset
+            , OffsetBy pageOffset
             , Asc MilestoneStartDate
             , Desc MilestoneCompleteDate
             ]
