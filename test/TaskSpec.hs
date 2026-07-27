@@ -29,6 +29,7 @@ spec = withApp $ do
                 setUrl $ TaskR storyId taskId
                 addRequestHeader ("Accept", "application/json")
             statusIs 200
+
         it "returns 404 when a task does not exist" $ do
             storyId <- runDB $ insert $ Story "Test Story" 1
             request $ do
@@ -103,6 +104,7 @@ spec = withApp $ do
                 setMethod "DELETE"
                 setUrl $ TaskR storyId taskId
             statusIs 200
+
         it "returns 404 when a task does not exist" $ do
             storyId <- runDB $ do insert $ Story "Test Story" 1
             request $ do

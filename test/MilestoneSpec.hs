@@ -27,6 +27,7 @@ spec = withApp $ do
                 setUrl $ MilestoneR milestoneId
                 addRequestHeader ("Accept", "application/json")
             statusIs 200
+
         it "returns 404 when a milestone does not exist" $ do
             request $ do
                 setMethod "GET"
@@ -90,6 +91,7 @@ spec = withApp $ do
                 setMethod "DELETE"
                 setUrl $ MilestoneR milestoneId
             statusIs 200
+
         it "returns 404 when a milestone does not exist" $ do
             request $ do
                 setMethod "DELETE"

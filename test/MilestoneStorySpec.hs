@@ -39,6 +39,7 @@ spec = withApp $ do
                 setUrl $ MilestoneStoryR milestoneId storyId
                 addRequestHeader ("Accept", "application/json")
             statusIs 200
+
         it "returns 404 when a link does not exist" $ do
             request $ do
                 setMethod "DELETE"

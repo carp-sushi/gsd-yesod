@@ -1,20 +1,12 @@
 .PHONY: all format build test lint run clean watch
 
-all: format build test
+all: format build test lint
+
+# The formatter mangles esqueleto queries, so format all code except those.
+HS_FILES = $(filter-out src/Query.hs, $(shell find app src -name "*.hs"))
 
 format:
-	@fourmolu -q -i \
-		app/Main.hs \
-		src/Application.hs \
-		src/Database.hs \
-		src/Dto.hs \
-		src/Foundation.hs \
-		src/Handler.hs \
-		src/Lib.hs \
-		src/Logger.hs \
-		src/Model.hs \
-		src/Page.hs \
-		src/Settings.hs
+	@fourmolu -q -i $(HS_FILES)
 
 build:
 	@stack build

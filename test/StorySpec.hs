@@ -25,6 +25,7 @@ spec = withApp $ do
                 setUrl $ StoryR storyId
                 addRequestHeader ("Accept", "application/json")
             statusIs 200
+
         it "returns 404 when a story does not exist" $ do
             request $ do
                 setMethod "GET"
@@ -79,6 +80,7 @@ spec = withApp $ do
                 setMethod "DELETE"
                 setUrl $ StoryR storyId
             statusIs 200
+
         it "returns 404 when a story does not exist" $ do
             request $ do
                 setMethod "DELETE"
