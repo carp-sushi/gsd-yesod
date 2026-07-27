@@ -1,0 +1,6 @@
+export DB_HOST="localhost"
+export DB_NAME="gsd_yesod_prod"
+export DB_USER="postgres"
+export DB_PASS="postgres"
+export DB_PORT=5432
+export HTTP_PORT=8000
