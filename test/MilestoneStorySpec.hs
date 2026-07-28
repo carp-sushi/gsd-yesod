@@ -10,20 +10,16 @@ import Database.Persist.Sql (toSqlKey)
 spec :: Spec
 spec = withApp $ do
     describe "link milestone to story" $ do
-        it "returns 200 when JSON body is valid" $ do
+        it "returns 200 when request is valid" $ do
             startDate <- liftIO $ getCurrentTime
             (milestoneId, storyId) <- runDB $ do
                 mid <- insert $ Milestone "Test Milestone" (Just startDate) Nothing
                 sid <- insert $ Story "Test Story" 1
                 pure (mid, sid)
-            let body = object
-                    [ "milestoneId" .= milestoneId
-                    , "storyId" .= storyId
-                    ]
             request $ do
                 setMethod "POST"
                 setUrl $ MilestoneStoriesR milestoneId
-                setRequestBody $ encode body
+                setRequestBody $ encode storyId
                 addRequestHeader ("Content-Type", "application/json")
             statusIs 200
 

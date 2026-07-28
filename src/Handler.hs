@@ -157,14 +157,8 @@ putMilestoneR milestoneId = do
 -- | Link a story to a milestone.
 postMilestoneStoriesR :: MilestoneId -> Handler Value
 postMilestoneStoriesR milestoneId = do
-    milestoneStory <- requireCheckJsonBody :: Handler MilestoneStory
-
-    when (milestoneId /= milestoneStoryMilestoneId milestoneStory) $
-        invalidArgs
-            ["MilestoneId mismatch: URI does not match request body"]
-
+    storyId <- requireCheckJsonBody :: Handler StoryId
     entity <- runDB $ do
-        let storyId = milestoneStoryStoryId milestoneStory
         maybeEntity <- Query.findMilestoneStory milestoneId storyId
         case maybeEntity of
             Just entity -> do
@@ -173,10 +167,9 @@ postMilestoneStoriesR milestoneId = do
             Nothing -> do
                 _ <- get404 milestoneId
                 _ <- get404 storyId
-                insertEntity milestoneStory
-
-    let (Entity _ ms) = entity
-    returnJson ms
+                insertEntity $ MilestoneStory milestoneId storyId
+    let (Entity _ milestoneStory) = entity
+    returnJson milestoneStory
 
 -- | List all stories linked to a milestone.
 getMilestoneStoriesR :: MilestoneId -> Handler Value
