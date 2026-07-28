@@ -57,8 +57,8 @@ putStoryR storyId = do
     returnJson $ storyDto storyId updated
 
 -- | List a page of tasks for a story.
-getTasksR :: StoryId -> Handler Value
-getTasksR storyId = do
+getStoryTasksR :: StoryId -> Handler Value
+getStoryTasksR storyId = do
     (pageSize, pageNumber, pageOffset) <- readPageParams
     tasks <- runDB $ do
         selectList
@@ -67,40 +67,41 @@ getTasksR storyId = do
     returnJson $
         pageDto pageSize pageNumber tasks
 
--- | Get a task.
-getTaskR :: StoryId -> TaskId -> Handler Value
-getTaskR storyId taskId = do
-    task <- runDB $ get404 taskId
-    validateTaskStoryId storyId task
-    returnJson $ taskDto taskId task
-
--- | Delete a task.
-deleteTaskR :: StoryId -> TaskId -> Handler ()
-deleteTaskR storyId taskId = do
-    task <- runDB $ get404 taskId
-    validateTaskStoryId storyId task
-    runDB $ delete taskId
-
 -- | Create a task.
-postTasksR :: StoryId -> Handler Value
-postTasksR storyId = do
+postTasksR :: Handler Value
+postTasksR = do
     task <- requireCheckJsonBody :: Handler Task
-    validateTaskStoryId storyId task
     inserted <- runDB $ do
-        _ <- get404 storyId
+        _ <- get404 $ taskStoryId task
         insertEntity task
     returnJson inserted
 
+-- | Get a task.
+getTaskR :: TaskId -> Handler Value
+getTaskR taskId = do
+    task <- runDB $ get404 taskId
+    returnJson $ taskDto taskId task
+
+-- | Delete a task.
+deleteTaskR :: TaskId -> Handler ()
+deleteTaskR taskId = do
+    _ <- runDB $ get404 taskId
+    runDB $ delete taskId
+
 -- | Update a task.
-putTaskR :: StoryId -> TaskId -> Handler Value
-putTaskR storyId taskId = do
+putTaskR :: TaskId -> Handler Value
+putTaskR taskId = do
     task <- requireCheckJsonBody :: Handler Task
-    validateTaskStoryId storyId task
-    updated <- runDB $ do
-        _ <- get404 storyId
-        update taskId [TaskName =. taskName task, TaskStatus =. taskStatus task, TaskStoryId =. storyId]
-        get404 taskId
-    returnJson $ taskDto taskId updated
+    runDB $ do
+        _ <- get404 taskId
+        _ <- get404 $ taskStoryId task
+        update
+            taskId
+            [ TaskName =. taskName task
+            , TaskStatus =. taskStatus task
+            , TaskStoryId =. taskStoryId task
+            ]
+    returnJson $ taskDto taskId task
 
 -- | List a page of milestones.
 getMilestonesR :: Handler Value
@@ -211,9 +212,3 @@ deleteMilestoneStoryR milestoneId storyId = do
             [ MilestoneStoryMilestoneId ==. milestoneId
             , MilestoneStoryStoryId ==. storyId
             ]
-
--- | Validate that a story ID from the URI matches the story ID in a task.
-validateTaskStoryId :: StoryId -> Task -> Handler ()
-validateTaskStoryId storyId task =
-    when (storyId /= taskStoryId task) $
-        invalidArgs ["StoryId mismatch: URI does not match request body"]
