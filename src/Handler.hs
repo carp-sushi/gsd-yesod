@@ -162,7 +162,7 @@ postMilestoneStoriesR milestoneId = do
         maybeEntity <- Query.findMilestoneStory milestoneId storyId
         case maybeEntity of
             Just entity -> do
-                $logWarn "Milestone story link already exists"
+                $logWarn "Milestone already linked to story"
                 pure entity
             Nothing -> do
                 _ <- get404 milestoneId
@@ -175,11 +175,12 @@ postMilestoneStoriesR milestoneId = do
 getMilestoneStoriesR :: MilestoneId -> Handler Value
 getMilestoneStoriesR milestoneId = do
     (pageSize, pageNumber, pageOffset) <- readPageParams
-    let limit = fromIntegral pageSize
-        offset = fromIntegral pageOffset
     stories <- runDB $ do
         _ <- get404 milestoneId
-        Query.selectMilestoneStories milestoneId limit offset
+        Query.selectMilestoneStories
+            milestoneId
+            (fromIntegral pageSize)
+            (fromIntegral pageOffset)
     returnJson $
         pageDto pageSize pageNumber stories
 
@@ -187,11 +188,12 @@ getMilestoneStoriesR milestoneId = do
 getStoryMilestonesR :: StoryId -> Handler Value
 getStoryMilestonesR storyId = do
     (pageSize, pageNumber, pageOffset) <- readPageParams
-    let limit = fromIntegral pageSize
-        offset = fromIntegral pageOffset
     milestones <- runDB $ do
         _ <- get404 storyId
-        Query.selectStoryMilestones storyId limit offset
+        Query.selectStoryMilestones
+            storyId
+            (fromIntegral pageSize)
+            (fromIntegral pageOffset)
     returnJson $
         pageDto pageSize pageNumber milestones
 
