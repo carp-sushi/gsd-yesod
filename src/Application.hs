@@ -49,10 +49,8 @@ makeWaiApplication app = do
     requestLoggerMiddleware <- Logger.makeRequestLogger app
     pure $ requestLoggerMiddleware waiApp
 
--- Create warp settings for App.
+-- Create warp settings for App (!4 means HostIPv4Only).
 warpSettings :: App -> Warp.Settings
 warpSettings app =
     Warp.setPort (settingsReadHttpPort $ appSettings app) $
-        Warp.setHost
-            "!4" -- means HostIPv4Only - any IPv4 hostname
-            Warp.defaultSettings
+        Warp.setHost "!4" Warp.defaultSettings
