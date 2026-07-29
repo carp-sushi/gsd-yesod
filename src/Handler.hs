@@ -12,7 +12,7 @@ import Page
 import qualified Query
 
 import Control.Monad (when)
-import Data.Maybe (isNothing)
+import Data.Maybe (isJust, isNothing)
 import Database.Persist.Sql
 import Yesod.Core
 import Yesod.Persist.Core (get404, runDB)
@@ -85,9 +85,9 @@ getTaskR taskId = do
 
 -- | Delete a task.
 deleteTaskR :: TaskId -> Handler ()
-deleteTaskR taskId = do
-    _ <- runDB $ get404 taskId
-    runDB $ delete taskId
+deleteTaskR taskId = runDB $ do
+    _ <- get404 taskId
+    delete taskId
 
 -- | Update a task.
 putTaskR :: TaskId -> Handler Value
@@ -195,10 +195,12 @@ getStoryMilestonesR storyId = do
 -- | Delete a link between a milestone and a story.
 deleteMilestoneStoryR :: MilestoneId -> StoryId -> Handler ()
 deleteMilestoneStoryR milestoneId storyId = do
-    maybeEntity <- runDB $ Query.findMilestoneStory milestoneId storyId
-    when (isNothing maybeEntity) notFound -- Milestone not linked to story
-    runDB $
-        deleteWhere
-            [ MilestoneStoryMilestoneId ==. milestoneId
-            , MilestoneStoryStoryId ==. storyId
-            ]
+    milestoneStory <- runDB $ do
+        ms <- Query.findMilestoneStory milestoneId storyId
+        when (isJust ms) $
+            deleteWhere
+                [ MilestoneStoryMilestoneId ==. milestoneId
+                , MilestoneStoryStoryId ==. storyId
+                ]
+        pure ms
+    when (isNothing milestoneStory) notFound
