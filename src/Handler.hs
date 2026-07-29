@@ -54,7 +54,8 @@ putStoryR storyId = do
     updated <- runDB $ do
         update storyId [StoryName =. storyName story, StoryPoints =. storyPoints story]
         get404 storyId
-    returnJson $ storyDto storyId updated
+    returnJson $
+        storyDto storyId updated
 
 -- | List a page of tasks for a story.
 getStoryTasksR :: StoryId -> Handler Value
@@ -79,8 +80,8 @@ postTasksR = do
 -- | Get a task.
 getTaskR :: TaskId -> Handler Value
 getTaskR taskId = do
-    task <- runDB $ get404 taskId
-    returnJson $ taskDto taskId task
+    runDB (get404 taskId)
+        >>= returnJson . taskDto taskId
 
 -- | Delete a task.
 deleteTaskR :: TaskId -> Handler ()
@@ -101,7 +102,8 @@ putTaskR taskId = do
             , TaskStatus =. taskStatus task
             , TaskStoryId =. taskStoryId task
             ]
-    returnJson $ taskDto taskId task
+    returnJson $
+        taskDto taskId task
 
 -- | List a page of milestones.
 getMilestonesR :: Handler Value
@@ -158,7 +160,7 @@ putMilestoneR milestoneId = do
 postMilestoneStoriesR :: MilestoneId -> Handler Value
 postMilestoneStoriesR milestoneId = do
     storyId <- requireCheckJsonBody :: Handler StoryId
-    entity <- runDB $ do
+    (Entity _ milestoneStory) <- runDB $ do
         maybeEntity <- Query.findMilestoneStory milestoneId storyId
         case maybeEntity of
             Just entity -> do
@@ -168,7 +170,6 @@ postMilestoneStoriesR milestoneId = do
                 _ <- get404 milestoneId
                 _ <- get404 storyId
                 insertEntity $ MilestoneStory milestoneId storyId
-    let (Entity _ milestoneStory) = entity
     returnJson milestoneStory
 
 -- | List all stories linked to a milestone.
@@ -177,10 +178,7 @@ getMilestoneStoriesR milestoneId = do
     (pageSize, pageNumber, pageOffset) <- readPageParams
     stories <- runDB $ do
         _ <- get404 milestoneId
-        Query.selectMilestoneStories
-            milestoneId
-            (fromIntegral pageSize)
-            (fromIntegral pageOffset)
+        Query.selectMilestoneStories milestoneId (fromIntegral pageSize) (fromIntegral pageOffset)
     returnJson $
         pageDto pageSize pageNumber stories
 
@@ -190,10 +188,7 @@ getStoryMilestonesR storyId = do
     (pageSize, pageNumber, pageOffset) <- readPageParams
     milestones <- runDB $ do
         _ <- get404 storyId
-        Query.selectStoryMilestones
-            storyId
-            (fromIntegral pageSize)
-            (fromIntegral pageOffset)
+        Query.selectStoryMilestones storyId (fromIntegral pageSize) (fromIntegral pageOffset)
     returnJson $
         pageDto pageSize pageNumber milestones
 
